@@ -1,0 +1,189 @@
+<?xml version="1.0"?>
+
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1/GPL 2.0/LGPL 2.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is the Clipboard Observer.
+   -
+   - The Initial Developer of the Original Code is SHIMODA Hiroshi.
+   - Portions created by the Initial Developer are Copyright (C) 2004-2005
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s): SHIMODA Hiroshi <piro@p.club.ne.jp>
+   -
+   - Alternatively, the contents of this file may be used under the terms of
+   - either the GNU General Public License Version 2 or later (the "GPL"), or
+   - the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+   - in which case the provisions of the GPL or the LGPL are applicable instead
+   - of those above. If you wish to allow use of your version of this file only
+   - under the terms of either the GPL or the LGPL, and not to allow others to
+   - use your version of this file under the terms of the MPL, indicate your
+   - decision by deleting the provisions above and replace them with the notice
+   - and other provisions required by the LGPL or the GPL. If you do not delete
+   - the provisions above, a recipient may use your version of this file under
+   - the terms of any one of the MPL, the GPL or the LGPL.
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<?xml-stylesheet href="chrome://observeclipboard/content/pref/prefOverlay.css" type="text/css"?>
+
+<!DOCTYPE overlay [
+<!ENTITY % versionDTD SYSTEM "chrome://observeclipboard/content/_version.dtd">
+%versionDTD;
+<!ENTITY % observeclipboardDTD SYSTEM "chrome://observeclipboard/locale/">
+%observeclipboardDTD;
+]>
+
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<box orient="vertical" id="observeclipboardPrefs">
+
+<script type="application/x-javascript" src="chrome://observeclipboard/content/observeclipboard.js"/>
+<script type="application/x-javascript" src="chrome://observeclipboard/content/pref/exUnregisterer.js"/>
+<script type="application/x-javascript" src="chrome://observeclipboard/content/pref/prefOverlay.js"/>
+<script type="application/x-javascript"><![CDATA[
+
+function controlLinkedItemsType()
+{
+	var type           = document.getElementById('type');
+	var type_multiple  = document.getElementById('type_multiple');
+	var value          = Number(type.value);
+	var value_multiple = Number(type_multiple.value);
+
+	controlLinkedItems(
+		type,
+		value > -1,
+		'linked'
+	);
+	controlLinkedItems(
+		type,
+		value == 1 ||
+		value_multiple == 1,
+		'linked-loadInBackground'
+	);
+	controlLinkedItems(
+		type,
+		value == 0 ||
+		value == 1 ||
+		value_multiple == 1,
+		'linked-loadInBackgroundWindow'
+	);
+}
+
+]]></script>
+
+
+	<groupbox orient="vertical">
+		<caption label="&observeclipboard.group;"/>
+
+		<box orient="horizontal" align="center">
+			<label value="&type_before;" control="type"/>
+			<menulist id="type"
+				prefstring="observeclipboard.type"
+				oncommand="controlLinkedItemsType();"
+				linked="type_multiple_before type_multiple type_multiple_after interval interval_label_before interval_label_after interval_spinbuttons"
+
+				linked-loadInBackground="loadInBackground"
+				linked-loadInBackgroundWindow="loadInBackgroundWindow">
+				<menupopup>
+					<menuitem label="&type.current;" value="0"/>
+					<menuitem label="&type.tab;"     value="1"/>
+					<menuitem label="&type.window;"  value="2"/>
+					<menuitem label="&type.none;"    value="-1"/>
+				</menupopup>
+			</menulist>
+			<label value="&type_after;" control="type"/>
+		</box>
+
+
+		<box orient="horizontal" align="center">
+			<spacer style="width: 1em;"/>
+			<label id="type_multiple_before"
+				value="&type_multiple_before;" control="type_multiple"/>
+			<menulist id="type_multiple"
+				prefstring="observeclipboard.multiple.type"
+				oncommand="controlLinkedItemsType();">
+				<menupopup>
+					<menuitem label="&type_multiple.single;"  value="0"/>
+					<menuitem label="&type_multiple.tab;"     value="1"/>
+					<menuitem label="&type_multiple.window;"  value="2"/>
+					<menuitem label="&type_multiple.none;"    value="-1"/>
+				</menupopup>
+			</menulist>
+			<label id="type_multiple_after"
+				value="&type_multiple_after;" control="type_multiple"/>
+		</box>
+
+
+		<checkbox id="loadInBackground"
+			label="&loadInBackground;"
+			prefstring="observeclipboard.loadInBackground"/>
+		<checkbox id="loadInBackgroundWindow"
+			label="&loadInBackgroundWindow;"
+			prefstring="observeclipboard.loadInBackgroundWindow"/>
+
+		<box orient="horizontal">
+			<label id="interval_label_before"
+				value="&interval_before;"
+				control="interval"/>
+			<textbox id="interval"
+				size="6"
+				preftype="int"
+				prefstring="observeclipboard.interval"
+				oninput="if (Number(this.value) &lt; 1) this.value = 1;"/>
+			<spinbuttons id="interval_spinbuttons"
+				onup="spinButtonsUpDown(event, 'interval');"
+				ondown="spinButtonsUpDown(event, 'interval', 1);"/>
+			<label id="interval_label_after"
+				value="&interval_after;"
+				control="interval"/>
+		</box>
+
+	</groupbox>
+
+	<groupbox orient="vertical">
+		<caption label="&loadOnNewTab.group;"/>
+		<checkbox id="loadOnNewTab"
+			flex="1"
+			label="&loadOnNewTab.check;"
+			prefstring="observeclipboard.loadOnNewTab"/>
+	</groupbox>
+
+<spacer flex="1"/>
+
+<groupbox orient="vertical">
+	<caption label="&about.title;"/>
+	<box orient="horizontal">
+		<spacer flex="1"/>
+		<description value="&about.name_before;&version;&about.name_after;"/>
+		<spacer flex="1"/>
+	</box>
+	<box orient="horizontal">
+		<spacer flex="1"/>
+		<description value="&about.destributed;"
+			onclick="loadURI('http://piro.sakura.ne.jp/');"
+			class="text-link"/>
+		<spacer flex="1"/>
+	</box>
+	<box orient="horizontal" id="unregisterBlock">
+		<spacer flex="2"/>
+		<button flex="1"
+			label="&about.uninstall;"
+			oncommand="Unregister();"/>
+		<spacer flex="2"/>
+	</box>
+</groupbox>
+
+</box>
+
+</overlay>
