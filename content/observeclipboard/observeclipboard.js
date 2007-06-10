@@ -329,7 +329,7 @@ var ClipboardObserverService = {
 				document.persist(bar.id, 'currentset');
 			}
 			if ('BrowserToolboxCustomizeDone' in window)
-				BrowserToolboxCustomizeDone(true);
+				window.setTimeout('BrowserToolboxCustomizeDone(true);', 0);
 		}
 	},
 	
