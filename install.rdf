@@ -20,12 +20,14 @@
     <em:localized>
       <RDF:Description em:locale="en-US"
                        em:name="Clipboard Observer"
-                       em:description="Opens new tab or window automatically when you copy URLs into the clipboard."/>
+                       em:description="Opens new tab or window automatically when you copy URLs into the clipboard."
+                       em:homepageURL="http://piro.sakura.ne.jp/xul/_observeclipboard.html.en"/>
     </em:localized>
     <em:localized>
       <RDF:Description em:locale="ja-JP"
                        em:name="クリップボード監視"
-                       em:description="URLがクリップボードにコピーされた時に、新しいウィンドウやタブで自動的に読み込みます。"/>
+                       em:description="URLがクリップボードにコピーされた時に、新しいウィンドウやタブで自動的に読み込みます。"
+                       em:homepageURL="http://piro.sakura.ne.jp/xul/_observeclipboard.html"/>
     </em:localized>
 
 
