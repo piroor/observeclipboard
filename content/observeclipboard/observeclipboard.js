@@ -466,10 +466,15 @@ var ClipboardObserverService = {
 		var tab;
 
 
-		// Firefox 2.0
-		if (uris.length > 1 &&
-			'_confirmOpenTabs' in BookmarksCommand &&
-			!BookmarksCommand._confirmOpenTabs(uris.length))
+		if (
+			uris.length > 1 &&
+			('BookmarksCommand' in window &&
+			'_confirmOpenTabs' in BookmarksCommand) ? // Firefox 2.0
+				!BookmarksCommand._confirmOpenTabs(uris.length) :
+			('PlacesController' in window) ? // Firefox 3
+				!PlacesController.prototype._confirmOpenTabs(uris.length) :
+				false
+			)
 			return;
 
 
