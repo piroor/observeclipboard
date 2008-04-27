@@ -14,7 +14,7 @@
  * The Original Code is the Clipboard Observer.
  *
  * The Initial Developer of the Original Code is SHIMODA Hiroshi.
- * Portions created by the Initial Developer are Copyright (C) 2004-2005
+ * Portions created by the Initial Developer are Copyright (C) 2004-2008
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s): SHIMODA Hiroshi <piro@p.club.ne.jp>
@@ -110,13 +110,15 @@ function loadURI(uri)
 }
  
 // Uninstall 
-var unreg = new exUnregisterer(
-	'chrome://observeclipboard/content/contents.rdf',
-	'jar:%chromeFolder%observeclipboard.jar!/locale/en-US/observeclipboard/contents.rdf',
-	'jar:%chromeFolder%observeclipboard.jar!/locale/ja-JP/observeclipboard/contents.rdf'
-);
 var STRBUNDLE = Components.classes['@mozilla.org/intl/stringbundle;1'].getService(Components.interfaces.nsIStringBundleService);
 var msg = STRBUNDLE.createBundle('chrome://observeclipboard/locale/observeclipboard.properties');
+var unreg;
+if (location.href.indexOf('prefDialog.xul') < 0)
+	unreg = new exUnregisterer(
+		'chrome://observeclipboard/content/contents.rdf',
+		'jar:%chromeFolder%observeclipboard.jar!/locale/en-US/observeclipboard/contents.rdf',
+		'jar:%chromeFolder%observeclipboard.jar!/locale/ja-JP/observeclipboard/contents.rdf'
+	);
 
 
 function Unregister()
