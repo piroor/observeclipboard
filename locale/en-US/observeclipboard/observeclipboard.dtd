@@ -14,7 +14,7 @@
    - The Original Code is the Clipboard Observer.
    -
    - The Initial Developer of the Original Code is SHIMODA Hiroshi.
-   - Portions created by the Initial Developer are Copyright (C) 2004-2005
+   - Portions created by the Initial Developer are Copyright (C) 2004-2008
    - the Initial Developer. All Rights Reserved.
    -
    - Contributor(s): SHIMODA Hiroshi <piro@p.club.ne.jp>
@@ -62,6 +62,17 @@
 
 <!ENTITY loadOnNewTab.group "New Tab">
 <!ENTITY loadOnNewTab.check "Load the copied URI in the clipboard automatically when I open a new tab">
+
+
+<!ENTITY group.find        "URI Detection">
+
+<!ENTITY schemer             "Recognize text which starts with following parts, as URI: (ex. &quot;http,ftp,mailto&quot;)">
+<!ENTITY schemer.default     "Reset">
+<!ENTITY schemer.fixup.table "Fix up broken URI, with following rules: (ex. &quot;ttp=>http,ttps=>https&quot;)">
+<!ENTITY schemer.fixup.table.default "Reset">
+
+<!ENTITY multibyte.enabled   "Parse multi-byte characters">
+
 
 
 <!ENTITY about.title       "About Clipboard Observer">

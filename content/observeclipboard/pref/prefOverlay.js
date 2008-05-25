@@ -39,7 +39,10 @@ var _elementIDs = [
 	'loadInBackground',
 	'loadInBackgroundWindow',
 	'interval',
-	'loadOnNewTab'
+	'loadOnNewTab',
+	'observeclipboard.schemer',
+	'observeclipboard.schemer.fixup.table',
+	'observeclipboard.multibyte.enabled'
 ];
 
 function controlLinkedItems(elem, aShouldEnable, aAttr)

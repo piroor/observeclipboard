@@ -16,7 +16,7 @@
    - The Original Code is the Clipboard Observer.
    -
    - The Initial Developer of the Original Code is SHIMODA Hiroshi.
-   - Portions created by the Initial Developer are Copyright (C) 2004-2005
+   - Portions created by the Initial Developer are Copyright (C) 2004-2008
    - the Initial Developer. All Rights Reserved.
    -
    - Contributor(s): SHIMODA Hiroshi <piro@p.club.ne.jp>
@@ -157,6 +157,48 @@ function controlLinkedItemsType()
 			flex="1"
 			label="&loadOnNewTab.check;"
 			prefstring="observeclipboard.loadOnNewTab"/>
+	</groupbox>
+
+	<groupbox orient="vertical">
+		<caption id="observeclipboard.group.find"
+			label="&group.find;"/>
+
+		<label id="observeclipboard.schemer.label"
+			value="&schemer;"
+			control="observeclipboard.schemer"/>
+		<hbox align="center">
+			<spacer style="width:1em;"/>
+			<textbox id="observeclipboard.schemer"
+				flex="1"
+				prefstring="observeclipboard.schemer"/>
+			<button label="&schemer.default;"
+				class="reset-button"
+				oncommand="this.previousSibling.value = this.nextSibling.firstChild.value;"/>
+			<box collapsed="true">
+				<textbox id="observeclipboard.schemer.default"
+					prefstring="observeclipboard.schemer.default"/>
+			</box>
+		</hbox>
+
+		<label id="observeclipboard.schemer.fixup.table.label"
+			value="&schemer.fixup.table;"
+			control="observeclipboard.schemer.fixup.table"/>
+		<hbox align="center">
+			<spacer style="width:1em;"/>
+			<textbox id="observeclipboard.schemer.fixup.table"
+				flex="1"
+				prefstring="observeclipboard.schemer.fixup.table"/>
+			<button label="&schemer.fixup.table.default;"
+				class="reset-button"
+				oncommand="this.previousSibling.value = this.nextSibling.firstChild.value;"/>
+			<box collapsed="true">
+				<textbox id="observeclipboard.schemer.fixup.table.default"
+					prefstring="observeclipboard.schemer.fixup.table.default"/>
+			</box>
+		</hbox>
+		<checkbox id="observeclipboard.multibyte.enabled"
+			label="&multibyte.enabled;"
+			prefstring="observeclipboard.multibyte.enabled"/>
 	</groupbox>
 
 <spacer flex="1"/>

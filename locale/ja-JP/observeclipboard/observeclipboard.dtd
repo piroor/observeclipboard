@@ -14,7 +14,7 @@
    - The Original Code is the Clipboard Observer.
    -
    - The Initial Developer of the Original Code is SHIMODA Hiroshi.
-   - Portions created by the Initial Developer are Copyright (C) 2004-2005
+   - Portions created by the Initial Developer are Copyright (C) 2004-2008
    - the Initial Developer. All Rights Reserved.
    -
    - Contributor(s): SHIMODA Hiroshi <piro@p.club.ne.jp>
@@ -62,6 +62,17 @@
 
 <!ENTITY loadOnNewTab.group "新しいタブ">
 <!ENTITY loadOnNewTab.check "新しいタブを開いたとき、クリップボードにコピーされているURIを自動で読み込む">
+
+
+<!ENTITY group.find        "URIの検出方法">
+
+<!ENTITY schemer             "以下で始まる文字列をURIとして認識する（例：「http,ftp,mailto」）: ">
+<!ENTITY schemer.default     "初期値に戻す">
+<!ENTITY schemer.fixup.table "以下のルールに従ってURIを補完する（例：「ttp=>http,ttps=>https」）">
+<!ENTITY schemer.fixup.table.default "初期値に戻す">
+
+<!ENTITY multibyte.enabled   "全角英数文字も解釈する">
+
 
 
 <!ENTITY about.title       "クリップボード監視について">
