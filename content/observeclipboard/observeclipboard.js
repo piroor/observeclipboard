@@ -415,6 +415,7 @@ var ClipboardObserverService = {
 	getURIsFromClipboard : function() 
 	{
 		var res = [];
+		var done = {};
 		try {
 			var str = this.getClipboardContent();
 			if (!str) return res;
@@ -427,7 +428,10 @@ var ClipboardObserverService = {
 			for (var i in uris)
 			{
 				uri = this.fixupURI(uris[i]);
-				if (uri) res.push(uri);
+				if (uri && !(uri in done)) {
+					res.push(uri);
+					done[uri] = true;
+				}
 			}
 		}
 		catch(e) {
