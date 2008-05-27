@@ -1,4 +1,4 @@
-var version     = '1.2.2008042801',
+var version     = '1.3.2008052701',
 	displayName = 'Clipbard Observer',
 	appName     = 'observeclipboard',
 	author      = 'SHIMODA Hiroshi',
