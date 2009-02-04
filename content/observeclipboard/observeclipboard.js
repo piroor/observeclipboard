@@ -208,7 +208,7 @@ var ClipboardObserverService = {
 	},
   
 	// URI manipulation (from textlink) 
-	 
+	
 	get kURIPattern() 
 	{
 		if (!this._kURIPattern)
@@ -444,7 +444,7 @@ var ClipboardObserverService = {
 		var uris = this.getURIsFromClipboard();
 		return uris.length ? uris[0] : null ;
 	},
- 	
+ 
 	init : function() 
 	{
 		if (this.activated) return;
@@ -765,13 +765,13 @@ var ClipboardObserverService = {
  
 	newBrowserOpenTab : function() 
 	{
-		var tabs = gBrowser.mTabContainer.childNodes.length;
+		var count = this.getTabs(gBrowser).snapshotLength;
 
 		window.__observeclipboard__BrowserOpenTab();
 
 		if (
 			ClipboardObserverService.getPref('observeclipboard.loadOnNewTab') &&
-			gBrowser.mTabContainer.childNodes.length > tabs
+			this.getTabs(gBrowser).snapshotLength > count
 			)
 			window.setTimeout('ClipboardObserverService.onNewTab();', 0);
 	},
@@ -795,15 +795,27 @@ var ClipboardObserverService = {
 					)
 					return;
 
-			var t = gBrowser.mTabContainer.childNodes[gBrowser.mTabContainer.childNodes.length-1];
+			var tabs = this.getTabs(gBrowser);
+			var t = tabs.snapshotItem(tabs.snapshotLength-1);
 			gBrowser.getBrowserForTab(t).loadURI(clipboardURI);
 
 			gURLBar.value = clipboardURI;
 		}
 		catch(e) {
 		}
+	},
+  
+	getTabs : function(aTabBrowser) 
+	{
+		return aTabBrowser.ownerDocument.evaluate(
+				'descendant::*[local-name()="tab"]',
+				aTabBrowser.mTabContainer,
+				null,
+				XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
+				null
+			);
 	}
-   
+ 	 
 }; 
  
 var gClipboardObserverPrefListener = 
