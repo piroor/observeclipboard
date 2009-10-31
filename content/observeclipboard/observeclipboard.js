@@ -14,7 +14,7 @@
  * The Original Code is the Clipboard Observer.
  *
  * The Initial Developer of the Original Code is SHIMODA Hiroshi.
- * Portions created by the Initial Developer are Copyright (C) 2004-2008
+ * Portions created by the Initial Developer are Copyright (C) 2004-2009
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s): SHIMODA Hiroshi <piro@p.club.ne.jp>
@@ -375,23 +375,36 @@ var ClipboardObserverService = {
  
 	fixupSchemer : function(aURI) 
 	{
-		var table = this.getPref('observeclipboard.schemer.fixup.table')
+		if (!this.fixupSchemer_table) {
+			this.fixupSchemer_table = this.getPref('observeclipboard.schemer.fixup.table')
 						.replace(/(\s*[^:\s]+)\s*=>\s*([^:\s]+)(\s*([,\| \n\r\t]|$))/g, '$1:=>$2:$3');
-		var regexp = new RegExp();
-
-		var targets = table.replace(/\s*=>\s*[^,\| \n\r\t]+|\s*=>\s*[^,\| \n\r\t]+$/g, '')
+			this.fixupSchemer_targets = this.fixupSchemer_table
+						.replace(/\s*=>\s*[^,\| \n\r\t]+|\s*=>\s*[^,\| \n\r\t]+$/g, '')
 						.replace(/([\(\)\+\.\{\}])/g, '\\$1')
 						.replace(/\?/g, '.')
 						.replace(/\*/g, '.+')
 						.replace(/\s*[,\| \n\r\t]+\s*/g, '|');
+			this.fixupSchemer_targetsRE = new RegExp('^('+this.fixupSchemer_targets+')', 'g');
+		}
 
-		if (aURI.match(regexp.compile('^('+targets+')', 'g'))) {
+		if (aURI.match(this.fixupSchemer_targetsRE)) {
 			var target = RegExp.$1;
-			eval((targets+'|')
-					.replace(/([^|]+)\|/g,
-						'if (/^$1$/.test("'+target+'")) table = table.replace(/\\b$1\\s*=>/, "'+target+'=>");'
-				));
+			var table = this.evalInSandbox('(function() {'+
+					'var targets = '+this.fixupSchemer_targets.quote()+';'+
+					'var table = '+this.fixupSchemer_table.quote()+';'+
+					'var target = '+target.quote()+';'+
+					((this.fixupSchemer_targets+'|')
+						.replace(
+							/([^|]+)\|/g,
+							<![CDATA[
+								if (/^$1$/.test(target))
+									table = table.replace(/\\b$1\\s*=>/, target+"=>");
+							]]>
+						))+
+					'return table;'+
+				'})()');
 
+			var regexp = new RegExp();
 			if (table.match(
 					regexp.compile(
 						'([,\\| \\n\\r\\t]|^)'+
@@ -411,6 +424,9 @@ var ClipboardObserverService = {
 
 		return aURI;
 	},
+	fixupSchemer_table : null,
+	fixupSchemer_targets : null,
+	fixupSchemer_targetsRE : null,
    
 	getURIsFromClipboard : function() 
 	{
@@ -445,12 +461,21 @@ var ClipboardObserverService = {
 		return uris.length ? uris[0] : null ;
 	},
  
+	evalInSandbox : function(aCode, aOwner) 
+	{
+		try {
+			var sandbox = new Components.utils.Sandbox(aOwner || 'about:blank');
+			return Components.utils.evalInSandbox(aCode, sandbox);
+		}
+		catch(e) {
+		}
+		return void(0);
+	},
+ 
 	init : function() 
 	{
 		if (this.activated) return;
 		this.activated = true;
-
-		this.loadDefaultPrefs();
 
 		if (!this.isBrowserWindow) return;
 
@@ -535,20 +560,7 @@ var ClipboardObserverService = {
 		}
 	},
 	
-	loadDefaultPrefs : function() 
-	{
-		if (this.getPref('observeclipboard.default')) return;
 
-		const DEFPrefs = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefService).getDefaultBranch(null);
-		var nullPointer;
-
-		function pref(aPrefstring, aValue) {
-			ClipboardObserverService.setPref(aPrefstring, aValue, DEFPrefs);
-			nullPointer = ClipboardObserverService.getPref(aPrefstring);
-		}
-
-		eval(this.readFromURI('chrome://observeclipboard/content/default.js'));
-	},
 	 
 	readFromURI : function(aURI) 
 	{
@@ -822,44 +834,56 @@ var gClipboardObserverPrefListener =
 {
 	domains : [
 		'observeclipboard.type',
-		'observeclipboard.interval'
+		'observeclipboard.interval',
+		'observeclipboard.schemer.fixup.table'
 	],
 	observe : function(aSubject, aTopic, aPrefName)
 	{
 		if (aTopic != 'nsPref:changed') return;
-try{
+
 		var sv = ClipboardObserverService;
-		var broadcaster = document.getElementById('toggleObserveClipboard-broadcaster');
+		switch (aPrefName)
+		{
+			case 'observeclipboard.schemer.fixup.table':
+				sv.fixupSchemer_table = null;
+				sv.fixupSchemer_targets = null;
+				sv.fixupSchemer_targetsRE = null;
+				break;
 
-		if (sv.getPref('observeclipboard.type') > -1) {
-			if (broadcaster) {
-				if (broadcaster.getAttribute('checked') != true)
-					window.gClipboardObserverLastContent.shouldIgnoreFirst = true;
-				broadcaster.setAttribute('checked', true);
-				broadcaster.setAttribute('tooltiptext', broadcaster.getAttribute('tooltiptext-checked'));
-			}
+			case 'observeclipboard.type':
+			case 'observeclipboard.interval':
+try{
+				var broadcaster = document.getElementById('toggleObserveClipboard-broadcaster');
+				if (sv.getPref('observeclipboard.type') > -1) {
+					if (broadcaster) {
+						if (broadcaster.getAttribute('checked') != true)
+							window.gClipboardObserverLastContent.shouldIgnoreFirst = true;
+						broadcaster.setAttribute('checked', true);
+						broadcaster.setAttribute('tooltiptext', broadcaster.getAttribute('tooltiptext-checked'));
+					}
 
-			if (sv.timer) return;
+					if (sv.timer) return;
 
-			var interval = sv.getPref('observeclipboard.interval');
-			if (interval < 1) interval = 1;
-			sv.timer = window.setInterval(sv.observes, interval);
-		}
-		else {
-			if (broadcaster) {
-				broadcaster.removeAttribute('checked');
-				broadcaster.setAttribute('tooltiptext', broadcaster.getAttribute('tooltiptext-unchecked'));
-			}
+					var interval = sv.getPref('observeclipboard.interval');
+					if (interval < 1) interval = 1;
+					sv.timer = window.setInterval(sv.observes, interval);
+				}
+				else {
+					if (broadcaster) {
+						broadcaster.removeAttribute('checked');
+						broadcaster.setAttribute('tooltiptext', broadcaster.getAttribute('tooltiptext-unchecked'));
+					}
 
-			if (sv.timer) {
-				window.clearInterval(sv.timer);
-				sv.timer = null;
-			}
-		}
-
+					if (sv.timer) {
+						window.clearInterval(sv.timer);
+						sv.timer = null;
+					}
+				}
 }
 catch(e){
 }
+				break;
+		}
 	}
 };
  
