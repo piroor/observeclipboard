@@ -398,7 +398,7 @@ var ClipboardObserverService = {
 							/([^|]+)\|/g,
 							<![CDATA[
 								if (/^$1$/.test(target))
-									table = table.replace(/\\b$1\\s*=>/, target+"=>");
+									table = table.replace(/\b$1\s*=>/, target+"=>");
 							]]>
 						))+
 					'return table;'+
