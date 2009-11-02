@@ -14,7 +14,7 @@
    - The Original Code is the Clipboard Observer.
    -
    - The Initial Developer of the Original Code is SHIMODA Hiroshi.
-   - Portions created by the Initial Developer are Copyright (C) 2004-2008
+   - Portions created by the Initial Developer are Copyright (C) 2004-2009
    - the Initial Developer. All Rights Reserved.
    -
    - Contributor(s): SHIMODA Hiroshi <piro@p.club.ne.jp>
@@ -53,8 +53,8 @@
 <!ENTITY type_multiple.window  "すべてを新しいウィンドウで開く">
 <!ENTITY type_multiple.none    "（何もしない）">
 
-<!ENTITY interval_before "監視する間隔：">
-<!ENTITY interval_after  "ミリ秒">
+<!ENTITY interval_before "">
+<!ENTITY interval_after  "ミリ秒ごとにクリップボードを監視する">
 
 <!ENTITY loadInBackground "タブを背景に読み込む（自動でフォーカスしない）">
 <!ENTITY loadInBackgroundWindow "ウィンドウをアクティブにしない">
@@ -66,21 +66,12 @@
 
 <!ENTITY group.find        "URIの検出方法">
 
-<!ENTITY schemer             "以下で始まる文字列をURIとして認識する（例：「http,ftp,mailto」）: ">
+<!ENTITY schemer             "以下で始まる文字列をURIとして認識する（例：「http ftp mailto」）: ">
 <!ENTITY schemer.default     "初期値に戻す">
-<!ENTITY schemer.fixup.table "以下のルールに従ってURIを補完する（例：「ttp=>http,ttps=>https」）">
+<!ENTITY schemer.fixup.table "以下のルールに従ってURIを補完する（例：「ttp=>http ttps=>https」）">
 <!ENTITY schemer.fixup.table.default "初期値に戻す">
 
 <!ENTITY multibyte.enabled   "全角英数文字も解釈する">
-
-
-
-<!ENTITY about.title       "クリップボード監視について">
-<!ENTITY about.name_before "クリップボード監視 Ver.">
-<!ENTITY about.name_after  "">
-<!ENTITY about.destributed "http://piro.sakura.ne.jp/">
-<!ENTITY about.uninstall   "アンインストール">
-
 
 
 

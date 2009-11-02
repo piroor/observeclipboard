@@ -14,7 +14,7 @@
    - The Original Code is the Clipboard Observer.
    -
    - The Initial Developer of the Original Code is SHIMODA Hiroshi.
-   - Portions created by the Initial Developer are Copyright (C) 2004-2008
+   - Portions created by the Initial Developer are Copyright (C) 2004-2009
    - the Initial Developer. All Rights Reserved.
    -
    - Contributor(s): SHIMODA Hiroshi <piro@p.club.ne.jp>
@@ -53,34 +53,25 @@
 <!ENTITY type_multiple.window  "Open All in New Windows">
 <!ENTITY type_multiple.none    "(no reaction)">
 
-<!ENTITY interval_before "Interval of observation:">
-<!ENTITY interval_after  "msec">
+<!ENTITY interval_before "Observe the clipboard every ">
+<!ENTITY interval_after  "msec.">
 
 <!ENTITY loadInBackground "Load new tab in the background">
 <!ENTITY loadInBackgroundWindow "Keep browser in the background">
 
 
 <!ENTITY loadOnNewTab.group "New Tab">
-<!ENTITY loadOnNewTab.check "Load the copied URI in the clipboard automatically when I open a new tab">
+<!ENTITY loadOnNewTab.check "Paste and go for new blank tab, if there is an URI in the clipboard">
 
 
 <!ENTITY group.find        "URI Detection">
 
-<!ENTITY schemer             "Recognize text which starts with following parts, as URI: (ex. &quot;http,ftp,mailto&quot;)">
+<!ENTITY schemer             "Recognize a text as an URI if it starts with one of following parts: (ex. &quot;http ftp mailto&quot;)">
 <!ENTITY schemer.default     "Reset">
-<!ENTITY schemer.fixup.table "Fix up broken URI, with following rules: (ex. &quot;ttp=>http,ttps=>https&quot;)">
+<!ENTITY schemer.fixup.table "Fix up broken URI, with following rules: (ex. &quot;ttp=>http ttps=>https&quot;)">
 <!ENTITY schemer.fixup.table.default "Reset">
 
-<!ENTITY multibyte.enabled   "Parse multi-byte characters">
-
-
-
-<!ENTITY about.title       "About Clipboard Observer">
-<!ENTITY about.name_before "Clipboard Observer Ver.">
-<!ENTITY about.name_after  "">
-<!ENTITY about.destributed "http://piro.sakura.ne.jp/">
-<!ENTITY about.uninstall   "Uninstall">
-
+<!ENTITY multibyte.enabled   "Accept multi-byte characters">
 
 
 

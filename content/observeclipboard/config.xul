@@ -163,7 +163,7 @@
 				preference="observeclipboard.schemer"/>
 			<button label="&schemer.default;"
 				class="reset-button"
-				oncommand="this.previousSibling.value = this.nextSibling.firstChild.value;"/>
+				oncommand="this.previousSibling.value = document.getElementById(this.previousSibling.getAttribute('preference')).defaultValue;"/>
 		</hbox>
 
 		<label id="observeclipboard.schemer.fixup.table.label"
@@ -176,7 +176,7 @@
 				preference="observeclipboard.schemer.fixup.table"/>
 			<button label="&schemer.fixup.table.default;"
 				class="reset-button"
-				oncommand="this.previousSibling.value = this.nextSibling.firstChild.value;"/>
+				oncommand="this.previousSibling.value = document.getElementById(this.previousSibling.getAttribute('preference')).defaultValue;"/>
 		</hbox>
 		<checkbox id="observeclipboard.multibyte.enabled"
 			label="&multibyte.enabled;"
