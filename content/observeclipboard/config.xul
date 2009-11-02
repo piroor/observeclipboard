@@ -36,7 +36,7 @@
    - ***** END LICENSE BLOCK ***** -->
 
 <?xml-stylesheet href="chrome://global/skin" type="text/css"?>
-<?xml-stylesheet href="chrome://observeclipboard/content/config.css" type="text/css"?>
+<?xml-stylesheet href="config.css" type="text/css"?>
 
 <!DOCTYPE prefwindow [
 <!ENTITY % observeclipboardDTD SYSTEM "chrome://observeclipboard/locale/">
@@ -185,41 +185,6 @@
 
 </prefpane>
 
-<script type="application/x-javascript" src="chrome://observeclipboard/content/config.js"/>
-<script type="application/x-javascript"><![CDATA[
-
-function onGeneralPaneLoad()
-{
-	controlLinkedItemsType();
-}
-
-function controlLinkedItemsType()
-{
-	var type           = document.getElementById('type');
-	var type_multiple  = document.getElementById('type_multiple');
-	var value          = Number(type.value);
-	var value_multiple = Number(type_multiple.value);
-
-	controlLinkedItems(
-		type,
-		value > -1,
-		'linked'
-	);
-	controlLinkedItems(
-		type,
-		value == 1 ||
-		value_multiple == 1,
-		'linked-loadInBackground'
-	);
-	controlLinkedItems(
-		type,
-		value == 0 ||
-		value == 1 ||
-		value_multiple == 1,
-		'linked-loadInBackgroundWindow'
-	);
-}
-
-]]></script>
+<script type="application/x-javascript" src="config.js"/>
 
 </prefwindow>

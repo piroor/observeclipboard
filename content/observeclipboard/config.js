@@ -32,18 +32,38 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
-	
-var _elementIDs = [ 
-	'type',
-	'type_multiple',
-	'loadInBackground',
-	'loadInBackgroundWindow',
-	'interval',
-	'loadOnNewTab',
-	'observeclipboard.schemer',
-	'observeclipboard.schemer.fixup.table',
-	'observeclipboard.multibyte.enabled'
-];
+
+function onGeneralPaneLoad()
+{
+	controlLinkedItemsType();
+}
+
+function controlLinkedItemsType()
+{
+	var type           = document.getElementById('type');
+	var type_multiple  = document.getElementById('type_multiple');
+	var value          = Number(type.value);
+	var value_multiple = Number(type_multiple.value);
+
+	controlLinkedItems(
+		type,
+		value > -1,
+		'linked'
+	);
+	controlLinkedItems(
+		type,
+		value == 1 ||
+		value_multiple == 1,
+		'linked-loadInBackground'
+	);
+	controlLinkedItems(
+		type,
+		value == 0 ||
+		value == 1 ||
+		value_multiple == 1,
+		'linked-loadInBackgroundWindow'
+	);
+}
 
 function controlLinkedItems(elem, aShouldEnable, aAttr)
 {
@@ -64,36 +84,3 @@ function controlLinkedItems(elem, aShouldEnable, aAttr)
 			item.removeAttribute('disabled');
 	}
 }
-
-function spinButtonsUpDown(aEvent, aTargetID, aMin, aMax)
-{
-	var eventNode = aEvent.target;
-	while (eventNode.localName != 'spinbuttons')
-		eventNode = eventNode.parentNode;
-
-	var buttonNode = aEvent.originalTarget;
-	while (buttonNode.localName != 'image')
-		buttonNode = buttonNode.buttonNode;
-
-	if (eventNode.getAttribute('disabled') == 'true' ||
-		eventNode.disabled) return;
-
-
-	var node = document.getElementById(aTargetID);
-	var val = Number(node.value);
-	if (isNaN(val)) val = 0;
-
-	if (buttonNode.getAttribute('class') == 'up')
-		val++;
-	else if (buttonNode.getAttribute('class') == 'down')
-		val--;
-
-	if (
-		(aMin !== void(0) && val < aMin) ||
-		(aMax !== void(0) && val > aMax)
-		)
-		return;
-
-	node.value = val;
-}
- 
