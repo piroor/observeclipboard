@@ -1,6 +1,3 @@
-pref("extensions.{84BE9FF4-6D4F-4477-8E8A-86CF17F053BA}.name", "chrome://observeclipboard/locale/observeclipboard.properties");
-pref("extensions.{84BE9FF4-6D4F-4477-8E8A-86CF17F053BA}.description", "chrome://observeclipboard/locale/observeclipboard.properties");
-
 pref('observeclipboard.default', true);
 
 // 0 = current tab, 1 = new tab, 2 = new window, -1 = disabled
@@ -10,9 +7,7 @@ pref("observeclipboard.type.ui",       1);
 pref("observeclipboard.multiple.type", 1);
 
 pref("observeclipboard.schemer",                     "http https ftp news nntp telnet irc mms ed2k about file urn");
-pref("observeclipboard.schemer.default",             "http https ftp news nntp telnet irc mms ed2k about file urn");
 pref("observeclipboard.schemer.fixup.table",         "www=>http:\/\/www ftp.=>ftp:\/\/ftp. irc.=>irc:irc. h??p=>http h???s=>https ttp=>http tp=>http p=>http ttps=>https tps=>https ps=>https");
-pref("observeclipboard.schemer.fixup.table.default", "www=>http:\/\/www ftp.=>ftp:\/\/ftp. irc.=>irc:irc. h??p=>http h???s=>https ttp=>http tp=>http p=>http ttps=>https tps=>https ps=>https");
 pref("observeclipboard.schemer.fixup.default", "http");
 pref("observeclipboard.multibyte.enabled", true);
 

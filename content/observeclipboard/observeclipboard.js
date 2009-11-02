@@ -44,9 +44,7 @@ var ClipboardObserverService = {
 
 	XULNS : 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul',
 	PREFROOT : 'extensions.{84BE9FF4-6D4F-4477-8E8A-86CF17F053BA}',
-
-	knsISupportsString : ('nsISupportsWString' in Components.interfaces) ? Components.interfaces.nsISupportsWString : Components.interfaces.nsISupportsString,
-	 
+	
 	// properties 
 	
 	get IOService() 
@@ -90,7 +88,7 @@ var ClipboardObserverService = {
 		return this._Clipboard;
 	},
 	_Clipboard : null,
-	 
+	
 	getClipboardContent : function() 
 	{
 		var str = '';
@@ -111,95 +109,10 @@ var ClipboardObserverService = {
 
 		if (!data) return str;
 
-		data = data.value.QueryInterface(this.knsISupportsString);
+		data = data.value.QueryInterface(Components.interfaces.nsISupportsString);
 		str = data.data.substring(0, dataLength.value / 2);
 
 		return str;
-	},
-  
-	get Prefs() 
-	{
-		if (!this._Prefs) {
-			this._Prefs = Components.classes['@mozilla.org/preferences;1'].getService(Components.interfaces.nsIPrefBranch);
-		}
-		return this._Prefs;
-	},
-	_Prefs : null,
-	
-	getPref : function(aPrefstring) 
-	{
-		try {
-			switch (this.Prefs.getPrefType(aPrefstring))
-			{
-				case this.Prefs.PREF_STRING:
-					return this.Prefs.getComplexValue(aPrefstring, this.knsISupportsString).data;
-					break;
-				case this.Prefs.PREF_INT:
-					return this.Prefs.getIntPref(aPrefstring);
-					break;
-				default:
-					return this.Prefs.getBoolPref(aPrefstring);
-					break;
-			}
-		}
-		catch(e) {
-		}
-
-		return null;
-	},
- 
-	setPref : function(aPrefstring, aNewValue, aPrefObj) 
-	{
-		var pref = aPrefObj || this.Prefs ;
-		var type;
-		try {
-			type = typeof aNewValue;
-		}
-		catch(e) {
-			type = null;
-		}
-
-		switch (type)
-		{
-			case 'string':
-				var string = ('@mozilla.org/supports-wstring;1' in Components.classes) ?
-						Components.classes['@mozilla.org/supports-wstring;1'].createInstance(this.knsISupportsString) :
-						Components.classes['@mozilla.org/supports-string;1'].createInstance(this.knsISupportsString) ;
-				string.data = aNewValue;
-				pref.setComplexValue(aPrefstring, this.knsISupportsString, string);
-				break;
-			case 'number':
-				pref.setIntPref(aPrefstring, parseInt(aNewValue));
-				break;
-			default:
-				pref.setBoolPref(aPrefstring, aNewValue);
-				break;
-		}
-		return true;
-	},
- 
-	addPrefListener : function(aObserver) 
-	{
-		var domains = ('domains' in aObserver) ? aObserver.domains : [aObserver.domain] ;
-		try {
-			var pbi = this.Prefs.QueryInterface(Components.interfaces.nsIPrefBranchInternal);
-			for (var i = 0; i < domains.length; i++)
-				pbi.addObserver(domains[i], aObserver, false);
-		}
-		catch(e) {
-		}
-	},
- 
-	removePrefListener : function(aObserver) 
-	{
-		var domains = ('domains' in aObserver) ? aObserver.domains : [aObserver.domain] ;
-		try {
-			var pbi = this.Prefs.QueryInterface(Components.interfaces.nsIPrefBranchInternal);
-			for (var i = 0; i < domains.length; i++)
-				pbi.removeObserver(domains[i], aObserver, false);
-		}
-		catch(e) {
-		}
 	},
   
 	get isBrowserWindow() 
@@ -255,36 +168,287 @@ var ClipboardObserverService = {
 	kOnebyteArray : '-_.!~~*\'()acdefghijklmnopqrstuvwxyzACDEFGHIJKLMNOPQRSTUVWXYZ0123456789;/?:@&=+$,%#',
 	kMultibyteArray : '\uff0d\uff3f\uff0e\uff01\uffe3\uff5e\uff0a\u2019\uff08\uff09\uff41\uff43\uff44\uff45\uff46\uff47\uff48\uff49\uff4a\uff4b\uff4c\uff4d\uff4e\uff4f\uff50\uff51\uff52\uff53\uff54\uff55\uff56\uff57\uff58\uff59\uff5a\uff21\uff23\uff24\uff25\uff26\uff27\uff28\uff29\uff2a\uff2b\uff2c\uff2d\uff2e\uff2f\uff30\uff31\uff32\uff33\uff34\uff35\uff36\uff37\uff38\uff39\uff3a\uff10\uff11\uff12\uff13\uff14\uff15\uff16\uff17\uff18\uff19\uff1b\uff0f\uff1f\uff1a\uff20\uff06\uff1d\uff0b\uff04\uff0c\uff05\uff03',
 
-	// see http://www4.plala.or.jp/nomrax/TLD/
+	// http://www4.plala.or.jp/nomrax/TLD/ 
+	// http://ja.wikipedia.org/wiki/%E3%83%88%E3%83%83%E3%83%97%E3%83%AC%E3%83%99%E3%83%AB%E3%83%89%E3%83%A1%E3%82%A4%E3%83%B3%E4%B8%80%E8%A6%A7
 	kTopLevelDomains : [
-		// iTLD , gTLD
-		'arpa', 'int', 'nato', 'com', 'net', 'org', 'info', 'biz', 'name', 'pro', 'museum', 'coop', 'aero', 'edu', 'gov', 'mil',
+		// gTLD
+		'aero',
+		'arpa',
+		'asia',
+		'biz',
+		'cat',
+		'com',
+		'coop',
+		'edu',
+		'gov',
+		'info',
+		'int',
+		'jobs',
+		'mil',
+		'mobi',
+		'museum',
+		'name',
+		'nato',
+		'net',
+		'org',
+		'pro',
+		'tel',
+		'travel',
 
 		// ccTLD
-		'ac', 'ad', 'ae', 'af', 'ag', 'ai', 'al', 'am', 'an', 'ao', 'aq', 'ar', 'as', 'at', 'au', 'aw', 'ax', 'az',
-		'ba', 'bb', 'bd', 'be', 'bf', 'bg', 'bh', 'bi', 'bj', 'bm', 'bn', 'bo', 'br', 'bs', 'bt', 'bu', 'bv', 'bw', 'by', 'bz',
-		'ca', 'cc', 'cd', 'cf', 'cg', 'ch', 'ci', 'ck', 'cl', 'cm', 'cn', 'co', 'cp', 'cr', 'cs', 'sk', 'cu', 'cv', 'cx', 'cy', 'cz',
-		'dd', 'de', 'dg', 'dj', 'dk', 'dm', 'do', 'dz',
-		'ea', 'ec', 'ee', 'eg', 'eh', 'er', 'es', 'et',
-		'fi', 'fj', 'fk', 'fm', 'fo', 'fr', 'fx',
-		'ga', 'gb', 'gd', 'ge', 'gf', 'gg', 'gh', 'gi', 'gl', 'gm', 'gn', 'gp', 'gq', 'gr', 'gs', 'gt', 'gu', 'gw', 'gy',
-		'hk', 'hm', 'hn', 'hr', 'ht', 'hu',
-		'ic', 'id', 'ie', 'il', 'im', 'in', 'io', 'iq', 'ir', 'is', 'it',
-		'je', 'jm', 'jo', 'jp',
-		'ke', 'kg', 'kh', 'ki', 'km', 'kn', 'kp', 'kr', 'kw', 'ky', 'kz',
-		'la', 'lb', 'lc', 'li', 'lk', 'lr', 'ls', 'lt', 'lu', 'lv', 'ly',
-		'ma', 'mc', 'md', 'mg', 'mh', 'mk', 'ml', 'mm', 'mn', 'mo', 'mp', 'mq', 'mr', 'ms', 'mt', 'mu', 'mv', 'mw', 'mx', 'my', 'mz',
-		'na', 'nc', 'ne', 'nf', 'ng', 'ni', 'nl', 'no', 'np', 'nr', 'nt', 'nu', 'nz',
+		'ac',
+		'ad',
+		'ae',
+		'af',
+		'ag',
+		'ai',
+		'al',
+		'am',
+		'an',
+		'ao',
+		'aq',
+		'ar',
+		'as',
+		'at',
+		'au',
+		'aw',
+		'ax',
+		'az',
+		'ba',
+		'bb',
+		'bd',
+		'be',
+		'bf',
+		'bg',
+		'bh',
+		'bi',
+		'bj',
+		'bm',
+		'bn',
+		'bo',
+		'br',
+		'bs',
+		'bt',
+		'bv',
+		'bw',
+		'by',
+		'bz',
+		'ca',
+		'cc',
+		'cd',
+		'cf',
+		'cg',
+		'ch',
+		'ci',
+		'ck',
+		'cl',
+		'cm',
+		'cn',
+		'co',
+		'cr',
+		'cs',
+		'cu',
+		'cv',
+		'cx',
+		'cy',
+		'cz',
+		'dd',
+		'de',
+		'dj',
+		'dk',
+		'dm',
+		'do',
+		'dz',
+		'ec',
+		'ee',
+		'eg',
+		'eh',
+		'er',
+		'es',
+		'et',
+		'eu',
+		'fi',
+		'fj',
+		'fk',
+		'fm',
+		'fo',
+		'fr',
+		'ga',
+		'gb',
+		'gd',
+		'ge',
+		'gf',
+		'gg',
+		'gh',
+		'gi',
+		'gl',
+		'gm',
+		'gn',
+		'gp',
+		'gq',
+		'gr',
+		'gs',
+		'gt',
+		'gu',
+		'gw',
+		'gy',
+		'hk',
+		'hm',
+		'hn',
+		'hr',
+		'ht',
+		'hu',
+		'id',
+		'ie',
+		'il',
+		'im',
+		'in',
+		'io',
+		'iq',
+		'ir',
+		'is',
+		'it',
+		'je',
+		'jm',
+		'jo',
+		'jp',
+		'ke',
+		'kg',
+		'kh',
+		'ki',
+		'km',
+		'kn',
+		'kp',
+		'kr',
+		'kw',
+		'ky',
+		'kz',
+		'la',
+		'lb',
+		'lc',
+		'li',
+		'lk',
+		'lr',
+		'ls',
+		'lt',
+		'lu',
+		'lv',
+		'ly',
+		'ma',
+		'mc',
+		'md',
+		'me',
+		'mg',
+		'mh',
+		'mk',
+		'ml',
+		'mm',
+		'mn',
+		'mo',
+		'mp',
+		'mq',
+		'mr',
+		'ms',
+		'mt',
+		'mu',
+		'mv',
+		'mw',
+		'mx',
+		'my',
+		'mz',
+		'na',
+		'nc',
+		'ne',
+		'nf',
+		'ng',
+		'ni',
+		'nl',
+		'no',
+		'np',
+		'nr',
+		'nu',
+		'nz',
 		'om',
-		'pa', 'pc', 'pe', 'pf', 'pg', 'ph', 'pk', 'pl', 'pm', 'pn', 'pr', 'ps', 'pt', 'pw', 'py', 'qa',
-		're', 'ro', 'ru', 'rw',
-		'sa', 'sb', 'sc', 'sd', 'se', 'sg', 'sh', 'si', 'sj', 'sk', 'sl', 'sm', 'sn', 'so', 'sr', 'st', 'su', 'sv', 'sy', 'sz',
-		'ta', 'tc', 'td', 'tf', 'tg', 'th', 'tj', 'tk', 'tm', 'tn', 'to', 'tp', 'tr', 'tt', 'tv', 'tw', 'tz',
-		'ua', 'ug', 'uk', 'um', 'us', 'uy', 'uz',
-		'va', 'vc', 've', 'vg', 'vi', 'vn', 'vu',
-		'wf', 'wg', 'ws',
-		'yd', 'ye', 'yt', 'yu',
-		'za', 'zm', 'zr', 'zw'
+		'pa',
+		'pe',
+		'pf',
+		'pg',
+		'ph',
+		'pk',
+		'pl',
+		'pm',
+		'pn',
+		'pr',
+		'ps',
+		'pt',
+		'pw',
+		'py',
+		'qa',
+		're',
+		'ro',
+		'rs',
+		'ru',
+		'rw',
+		'sa',
+		'sb',
+		'sc',
+		'sd',
+		'se',
+		'sg',
+		'sh',
+		'si',
+		'sj',
+		'sk',
+		'sl',
+		'sm',
+		'sn',
+		'so',
+		'sr',
+		'st',
+		'su',
+		'sv',
+		'sy',
+		'sz',
+		'tc',
+		'td',
+		'tf',
+		'tg',
+		'th',
+		'tj',
+		'tk',
+		'tl',
+		'tm',
+		'tn',
+		'to',
+		'tp',
+		'tr',
+		'tt',
+		'tv',
+		'tw',
+		'tz',
+		'ua',
+		'ug',
+		'uk',
+		'um',
+		'us',
+		'uy',
+		'uz',
+		'va',
+		'vc',
+		've',
+		'vg',
+		'vi',
+		'vn',
+		'vu',
+		'wf',
+		'ws',
+		'ye',
+		'yt',
+		'yu',
+		'za',
+		'zm',
+		'zr',
+		'zw'
 	],
  
 	// from http://taken.s101.xrea.com/blog/article.php?id=510
@@ -355,7 +519,7 @@ var ClipboardObserverService = {
 
 		return null;
 	},
-	 
+	
 	sanitizeURIString : function(aURIComponent) 
 	{
 		while (
@@ -561,30 +725,8 @@ var ClipboardObserverService = {
 	},
 	
 
-	 
-	readFromURI : function(aURI) 
-	{
-		try {
-			var uri = this.IOService.newURI(aURI, null, null);
+	
 
-			var channel = this.IOService.newChannelFromURI(uri);
-			var stream  = channel.open();
-
-			var scriptableStream = Components.classes['@mozilla.org/scriptableinputstream;1'].createInstance(Components.interfaces.nsIScriptableInputStream);
-			scriptableStream.init(stream);
-
-			var fileContents = scriptableStream.read(scriptableStream.available());
-
-			scriptableStream.close();
-			stream.close();
-
-			return fileContents;
-		}
-		catch(e) {
-		}
-
-		return null;
-	},
    
 	destruct : function() 
 	{
@@ -827,8 +969,9 @@ var ClipboardObserverService = {
 				null
 			);
 	}
- 	 
+  
 }; 
+ClipboardObserverService.__proto__ = window['piro.sakura.ne.jp'].prefs;
  
 var gClipboardObserverPrefListener = 
 {
@@ -894,21 +1037,7 @@ window.addEventListener('unload', function()
 	ClipboardObserverService.destruct();
 },
 false);
-window.addEventListener('unload', function()
-{
-	if (!ClipboardObserverService.activated) return;
 
-	ClipboardObserverService.destruct();
-},
-false);
-
-window.addEventListener('load', function()
-{
-	if (ClipboardObserverService.activated) return;
-
-	ClipboardObserverService.init();
-},
-false);
 window.addEventListener('load', function()
 {
 	if (ClipboardObserverService.activated) return;
