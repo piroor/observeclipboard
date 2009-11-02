@@ -10,7 +10,7 @@
                    em:description="Opens new tab or window automatically when you copy URLs into the clipboard."
                    em:homepageURL="http://piro.sakura.ne.jp/xul/_observeclipboard.html.en"
                    em:iconURL="chrome://observeclipboard/content/icon.png"
-                   em:optionsURL="chrome://observeclipboard/content/pref/prefDialog.xul">
+                   em:optionsURL="chrome://observeclipboard/content/config.xul">
 
 
     <em:updateURL>http://piro.sakura.ne.jp/xul/update.rdf</em:updateURL>

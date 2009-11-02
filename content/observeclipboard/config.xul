@@ -35,20 +35,163 @@
    -
    - ***** END LICENSE BLOCK ***** -->
 
-<?xml-stylesheet href="chrome://observeclipboard/content/pref/prefOverlay.css" type="text/css"?>
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
+<?xml-stylesheet href="chrome://observeclipboard/content/config.css" type="text/css"?>
 
-<!DOCTYPE overlay [
+<!DOCTYPE prefwindow [
 <!ENTITY % observeclipboardDTD SYSTEM "chrome://observeclipboard/locale/">
 %observeclipboardDTD;
 ]>
 
-<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<prefwindow xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+	windowtype="observeclipboard:preferences"
+	title="&observeclipboard.title;">
 
-<box orient="vertical" id="observeclipboardPrefs">
+<prefpane id="prefpane-general" label=""
+	onpaneload="onGeneralPaneLoad()">
+	<preferences>
+		<preference id="observeclipboard.type"
+			name="observeclipboard.type"
+			type="int"/>
+		<preference id="observeclipboard.multiple.type"
+			name="observeclipboard.multiple.type"
+			type="int"/>
+		<preference id="observeclipboard.loadInBackground"
+			name="observeclipboard.loadInBackground"
+			type="bool"/>
+		<preference id="observeclipboard.loadInBackgroundWindow"
+			name="observeclipboard.loadInBackgroundWindow"
+			type="bool"/>
+		<preference id="observeclipboard.interval"
+			name="observeclipboard.interval"
+			type="int"/>
+		<preference id="observeclipboard.loadOnNewTab"
+			name="observeclipboard.loadOnNewTab"
+			type="bool"/>
+		<preference id="observeclipboard.schemer"
+			name="observeclipboard.schemer"
+			type="string"/>
+		<preference id="observeclipboard.schemer.fixup.table"
+			name="observeclipboard.schemer.fixup.table"
+			type="string"/>
+		<preference id="observeclipboard.multibyte.enabled"
+			name="observeclipboard.multibyte.enabled"
+			type="bool"/>
+	</preferences>
 
-<script type="application/x-javascript" src="chrome://observeclipboard/content/observeclipboard.js"/>
-<script type="application/x-javascript" src="chrome://observeclipboard/content/pref/prefOverlay.js"/>
+	<groupbox orient="vertical">
+		<caption label="&observeclipboard.group;"/>
+
+		<box orient="horizontal" align="center">
+			<label value="&type_before;" control="type"/>
+			<menulist id="type"
+				preference="observeclipboard.type"
+				oncommand="controlLinkedItemsType();"
+				linked="type_multiple_before type_multiple type_multiple_after interval interval_label_before interval_label_after"
+				linked-loadInBackground="loadInBackground"
+				linked-loadInBackgroundWindow="loadInBackgroundWindow">
+				<menupopup>
+					<menuitem label="&type.current;" value="0"/>
+					<menuitem label="&type.tab;"     value="1"/>
+					<menuitem label="&type.window;"  value="2"/>
+					<menuitem label="&type.none;"    value="-1"/>
+				</menupopup>
+			</menulist>
+			<label value="&type_after;" control="type"/>
+		</box>
+
+		<box orient="horizontal" align="center">
+			<spacer style="width: 1em;"/>
+			<label id="type_multiple_before"
+				value="&type_multiple_before;" control="type_multiple"/>
+			<menulist id="type_multiple"
+				preference="observeclipboard.multiple.type"
+				oncommand="controlLinkedItemsType();">
+				<menupopup>
+					<menuitem label="&type_multiple.single;"  value="0"/>
+					<menuitem label="&type_multiple.tab;"     value="1"/>
+					<menuitem label="&type_multiple.window;"  value="2"/>
+					<menuitem label="&type_multiple.none;"    value="-1"/>
+				</menupopup>
+			</menulist>
+			<label id="type_multiple_after"
+				value="&type_multiple_after;" control="type_multiple"/>
+		</box>
+
+		<checkbox id="loadInBackground"
+			label="&loadInBackground;"
+			preference="observeclipboard.loadInBackground"/>
+		<checkbox id="loadInBackgroundWindow"
+			label="&loadInBackgroundWindow;"
+			preference="observeclipboard.loadInBackgroundWindow"/>
+
+		<box orient="horizontal">
+			<label id="interval_label_before"
+				value="&interval_before;"
+				control="interval"/>
+			<textbox id="interval"
+				size="6"
+				preference="observeclipboard.interval"
+				type="number"
+				min="1"/>
+			<label id="interval_label_after"
+				value="&interval_after;"
+				control="interval"/>
+		</box>
+
+	</groupbox>
+
+	<groupbox orient="vertical">
+		<caption label="&loadOnNewTab.group;"/>
+		<checkbox id="loadOnNewTab"
+			flex="1"
+			label="&loadOnNewTab.check;"
+			preference="observeclipboard.loadOnNewTab"/>
+	</groupbox>
+
+	<groupbox orient="vertical">
+		<caption id="observeclipboard.group.find"
+			label="&group.find;"/>
+
+		<label id="observeclipboard.schemer.label"
+			value="&schemer;"
+			control="observeclipboard.schemer"/>
+		<hbox align="center">
+			<spacer style="width:1em;"/>
+			<textbox id="observeclipboard.schemer"
+				flex="1"
+				preference="observeclipboard.schemer"/>
+			<button label="&schemer.default;"
+				class="reset-button"
+				oncommand="this.previousSibling.value = this.nextSibling.firstChild.value;"/>
+		</hbox>
+
+		<label id="observeclipboard.schemer.fixup.table.label"
+			value="&schemer.fixup.table;"
+			control="observeclipboard.schemer.fixup.table"/>
+		<hbox align="center">
+			<spacer style="width:1em;"/>
+			<textbox id="observeclipboard.schemer.fixup.table"
+				flex="1"
+				preference="observeclipboard.schemer.fixup.table"/>
+			<button label="&schemer.fixup.table.default;"
+				class="reset-button"
+				oncommand="this.previousSibling.value = this.nextSibling.firstChild.value;"/>
+		</hbox>
+		<checkbox id="observeclipboard.multibyte.enabled"
+			label="&multibyte.enabled;"
+			preference="observeclipboard.multibyte.enabled"/>
+	</groupbox>
+
+</prefpane>
+
+<script type="application/x-javascript" src="chrome://observeclipboard/content/config.js"/>
 <script type="application/x-javascript"><![CDATA[
+
+function onGeneralPaneLoad()
+{
+	controlLinkedItemsType();
+}
 
 function controlLinkedItemsType()
 {
@@ -79,125 +222,4 @@ function controlLinkedItemsType()
 
 ]]></script>
 
-
-	<groupbox orient="vertical">
-		<caption label="&observeclipboard.group;"/>
-
-		<box orient="horizontal" align="center">
-			<label value="&type_before;" control="type"/>
-			<menulist id="type"
-				prefstring="observeclipboard.type"
-				oncommand="controlLinkedItemsType();"
-				linked="type_multiple_before type_multiple type_multiple_after interval interval_label_before interval_label_after interval_spinbuttons"
-
-				linked-loadInBackground="loadInBackground"
-				linked-loadInBackgroundWindow="loadInBackgroundWindow">
-				<menupopup>
-					<menuitem label="&type.current;" value="0"/>
-					<menuitem label="&type.tab;"     value="1"/>
-					<menuitem label="&type.window;"  value="2"/>
-					<menuitem label="&type.none;"    value="-1"/>
-				</menupopup>
-			</menulist>
-			<label value="&type_after;" control="type"/>
-		</box>
-
-
-		<box orient="horizontal" align="center">
-			<spacer style="width: 1em;"/>
-			<label id="type_multiple_before"
-				value="&type_multiple_before;" control="type_multiple"/>
-			<menulist id="type_multiple"
-				prefstring="observeclipboard.multiple.type"
-				oncommand="controlLinkedItemsType();">
-				<menupopup>
-					<menuitem label="&type_multiple.single;"  value="0"/>
-					<menuitem label="&type_multiple.tab;"     value="1"/>
-					<menuitem label="&type_multiple.window;"  value="2"/>
-					<menuitem label="&type_multiple.none;"    value="-1"/>
-				</menupopup>
-			</menulist>
-			<label id="type_multiple_after"
-				value="&type_multiple_after;" control="type_multiple"/>
-		</box>
-
-
-		<checkbox id="loadInBackground"
-			label="&loadInBackground;"
-			prefstring="observeclipboard.loadInBackground"/>
-		<checkbox id="loadInBackgroundWindow"
-			label="&loadInBackgroundWindow;"
-			prefstring="observeclipboard.loadInBackgroundWindow"/>
-
-		<box orient="horizontal">
-			<label id="interval_label_before"
-				value="&interval_before;"
-				control="interval"/>
-			<textbox id="interval"
-				size="6"
-				preftype="int"
-				prefstring="observeclipboard.interval"
-				oninput="if (Number(this.value) &lt; 1) this.value = 1;"/>
-			<spinbuttons id="interval_spinbuttons"
-				onup="spinButtonsUpDown(event, 'interval');"
-				ondown="spinButtonsUpDown(event, 'interval', 1);"/>
-			<label id="interval_label_after"
-				value="&interval_after;"
-				control="interval"/>
-		</box>
-
-	</groupbox>
-
-	<groupbox orient="vertical">
-		<caption label="&loadOnNewTab.group;"/>
-		<checkbox id="loadOnNewTab"
-			flex="1"
-			label="&loadOnNewTab.check;"
-			prefstring="observeclipboard.loadOnNewTab"/>
-	</groupbox>
-
-	<groupbox orient="vertical">
-		<caption id="observeclipboard.group.find"
-			label="&group.find;"/>
-
-		<label id="observeclipboard.schemer.label"
-			value="&schemer;"
-			control="observeclipboard.schemer"/>
-		<hbox align="center">
-			<spacer style="width:1em;"/>
-			<textbox id="observeclipboard.schemer"
-				flex="1"
-				prefstring="observeclipboard.schemer"/>
-			<button label="&schemer.default;"
-				class="reset-button"
-				oncommand="this.previousSibling.value = this.nextSibling.firstChild.value;"/>
-			<box collapsed="true">
-				<textbox id="observeclipboard.schemer.default"
-					prefstring="observeclipboard.schemer.default"/>
-			</box>
-		</hbox>
-
-		<label id="observeclipboard.schemer.fixup.table.label"
-			value="&schemer.fixup.table;"
-			control="observeclipboard.schemer.fixup.table"/>
-		<hbox align="center">
-			<spacer style="width:1em;"/>
-			<textbox id="observeclipboard.schemer.fixup.table"
-				flex="1"
-				prefstring="observeclipboard.schemer.fixup.table"/>
-			<button label="&schemer.fixup.table.default;"
-				class="reset-button"
-				oncommand="this.previousSibling.value = this.nextSibling.firstChild.value;"/>
-			<box collapsed="true">
-				<textbox id="observeclipboard.schemer.fixup.table.default"
-					prefstring="observeclipboard.schemer.fixup.table.default"/>
-			</box>
-		</hbox>
-		<checkbox id="observeclipboard.multibyte.enabled"
-			label="&multibyte.enabled;"
-			prefstring="observeclipboard.multibyte.enabled"/>
-	</groupbox>
-
-</box>
-
-</overlay>
+</prefwindow>
