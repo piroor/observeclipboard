@@ -866,7 +866,11 @@ var ClipboardObserverService = {
 		);
 
 		this.addPrefListener(this);
-		this.onPrefChange();
+		this.onPrefChange('observeclipboard.schemer');
+		this.onPrefChange('observeclipboard.schemer.fixup.table');
+		this.onPrefChange('observeclipboard.schemer.fixup.default');
+		this.onPrefChange('observeclipboard.multibyte.enabled');
+		this.onPrefChange('observeclipboard.type');
 	},
 	initialShow : function()
 	{
@@ -1165,6 +1169,7 @@ var ClipboardObserverService = {
  
 	onPrefChange : function(aPrefName) 
 	{
+		var value = this.getPref(aPrefName);
 		switch (aPrefName)
 		{
 			case 'observeclipboard.schemer':

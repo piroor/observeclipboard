@@ -7,7 +7,7 @@ pref("observeclipboard.type.ui",       1);
 pref("observeclipboard.multiple.type", 1);
 
 pref("observeclipboard.schemer",                     "http https ftp news nntp telnet irc mms ed2k about file urn");
-pref("observeclipboard.schemer.fixup.table",         "www=>http:\/\/www ftp.=>ftp:\/\/ftp. irc.=>irc:irc. h??p=>http h???s=>https ttp=>http tp=>http p=>http ttps=>https tps=>https ps=>https");
+pref("observeclipboard.schemer.fixup.table",         "www=>http://www ftp.=>ftp://ftp. irc.=>irc:irc. h??p=>http h???s=>https ttp=>http tp=>http p=>http ttps=>https tps=>https ps=>https");
 pref("observeclipboard.schemer.fixup.default", "http");
 pref("observeclipboard.multibyte.enabled", true);
 

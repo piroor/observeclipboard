@@ -1,0 +1,11 @@
+input	sanitized
+http://www.example.com/	http://www.example.com/
+http://www.example.com/index	http://www.example.com/index
+http://www.example.com/index?query1=value1&query2=value2	http://www.example.com/index?query1=value1&query2=value2
+http://www.example.com/index#hash	http://www.example.com/index#hash
+www.example.com	www.example.com
+www.example.jp	www.example.jp
+...www.example.jp	www.example.jp
+:www.example.jp	www.example.jp
+/www.example.jp	www.example.jp
+MyClass.property.value	MyClass.property.value
