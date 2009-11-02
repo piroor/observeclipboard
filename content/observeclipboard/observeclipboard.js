@@ -1106,7 +1106,7 @@ var ClipboardObserverService = {
  
 	newBrowserOpenTab : function() 
 	{
-		var count = this.getTabs(gBrowser).snapshotLength;
+		var count = ClipboardObserverService.getTabs(gBrowser).snapshotLength;
 
 		window.__observeclipboard__BrowserOpenTab();
 
