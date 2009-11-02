@@ -45,8 +45,97 @@ var ClipboardObserverService = {
 	XULNS : 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul',
 	PREFROOT : 'extensions.{84BE9FF4-6D4F-4477-8E8A-86CF17F053BA}',
 	
+	evalInSandbox : function(aCode, aOwner) 
+	{
+		try {
+			var sandbox = new Components.utils.Sandbox(aOwner || 'about:blank');
+			return Components.utils.evalInSandbox(aCode, sandbox);
+		}
+		catch(e) {
+		}
+		return void(0);
+	},
+ 
 	// properties 
 	
+	get schemer() 
+	{
+		return this._schemer;
+	},
+	set schemer(val)
+	{
+		this._schemer = val;
+
+		this._schemers = this.schemer
+			.replace(/([\(\)\+\.\{\}])/g, '\\$1')
+			.replace(/\?/g, '.')
+			.replace(/\*/g, '.+')
+			.split(/[,\| \n\r\t]+/);
+		this._schemerRegExp = null;
+
+		this._kURIPattern = null;
+		this._kURIPatternMultibyte = null;
+		return val;
+	},
+	_schemer : '',
+	get schemers()
+	{
+		return this._schemers.concat(this._fixupSchemers);
+	},
+	_schemers : [],
+	_fixupSchemers : [],
+ 
+	schemerFixupDefault : 'http', 
+ 
+	get schemerFixupTable() 
+	{
+		return this._schemerFixupTable;
+	},
+	set schemerFixupTable(val)
+	{
+		this._schemerFixupTable = val;
+
+		this._fixupTable = this._schemerFixupTable
+					.replace(/(\s*[^:\s]+)\s*=>\s*([^:\s]+)(\s*([,\| \n\r\t]|$))/g, '$1:=>$2:$3');
+		this._fixupTargets = this._fixupTable
+					.replace(/\s*=>\s*[^,\| \n\r\t]+|\s*=>\s*[^,\| \n\r\t]+$/g, '')
+					.replace(/([\(\)\+\.\{\}])/g, '\\$1')
+					.replace(/\?/g, '.')
+					.replace(/\*/g, '.+')
+					.split(/\s*[,\| \n\r\t]+\s*/);
+		this._fixupSchemers = this._fixupTargets
+					.filter(function(aTarget) {
+						return /:$/.test(aTarget);
+					})
+					.map(function(aTarget) {
+						return aTarget.replace(/:$/, '');
+					});
+		this._fixupTargetsPattern = this._fixupTargets.join('|');
+		this._fixupTargetsRegExp = new RegExp('^('+this._fixupTargetsPattern+')');
+
+		this._schemerRegExp = null;
+
+		this._kURIPattern = null;
+		this._kURIPatternMultibyte = null;
+		return val;
+	},
+	_schemerFixupTable : '',
+ 
+	get shouldParseMultibyteCharacters() 
+	{
+		return this._shouldParseMultibyteCharacters;
+	},
+	set shouldParseMultibyteCharacters(val)
+	{
+		this._shouldParseMultibyteCharacters = val;
+		this._schemerRegExp = null;
+		this._URIMatchingRegExp = null;
+		this._URIPartRegExp_start = null;
+		this._URIPartRegExp_end = null;
+		return val;
+	},
+	_shouldParseMultibyteCharacters : true,
+ 
 	get IOService() 
 	{
 		if (!this._IOService) {
@@ -120,18 +209,55 @@ var ClipboardObserverService = {
 		return (Components.lookupMethod(window, 'top').call(window).document.documentElement.getAttribute('windowtype') == 'navigator:browser');
 	},
   
+// string operations 
+	
+	// from http://taken.s101.xrea.com/blog/article.php?id=510
+	convertFullWidthToHalfWidth : function(aString) 
+	{
+		return aString.replace(this.fullWidthRegExp, this.f2h)
+					.replace(/\u301c/g, '~'); // another version of tilde
+	},
+	fullWidthRegExp : /[\uFF01\uFF02\uFF03\uFF04\uFF05\uFF06\uFF07\uFF08\uFF09\uFF0A\uFF0B\uFF0C\uFF0D\uFF0E\uFF0F\uFF10\uFF11\uFF12\uFF13\uFF14\uFF15\uFF16\uFF17\uFF18\uFF19\uFF1A\uFF1B\uFF1C\uFF1D\uFF1E\uFF1F\uFF20\uFF21\uFF22\uFF23\uFF24\uFF25\uFF26\uFF27\uFF28\uFF29\uFF2A\uFF2B\uFF2C\uFF2D\uFF2E\uFF2F\uFF30\uFF31\uFF32\uFF33\uFF34\uFF35\uFF36\uFF37\uFF38\uFF39\uFF3A\uFF3B\uFF3C\uFF3D\uFF3E\uFF3F\uFF40\uFF41\uFF42\uFF43\uFF44\uFF45\uFF46\uFF47\uFF48\uFF49\uFF4A\uFF4B\uFF4C\uFF4D\uFF4E\uFF4F\uFF50\uFF51\uFF52\uFF53\uFF54\uFF55\uFF56\uFF57\uFF58\uFF59\uFF5A\uFF5B\uFF5C\uFF5D\uFF5E]/g,
+	f2h : function() {
+		var str = arguments[0];
+		var code = str.charCodeAt(0);
+		code &= 0x007F;
+		code += 0x0020;
+		return String.fromCharCode(code);
+	},
+
+	convertHalfWidthToFullWidth : function(aString)
+	{
+		return aString.replace(this.halfWidthRegExp, this.h2f);
+	},
+	halfWidthRegExp : /[!"#$%&'\(\)\*\+,-\.\/0123456789:;<=>\?@ABCDEFGHIJKLMNOPQRSTUVWXYZ\[\\\]\^_`abcdefghijklmnopqrstuvwxyz\{\|\}~]/g,
+	h2f : function() {
+		var str = arguments[0];
+		var code = str.charCodeAt(0);
+		code += 0xFF00;
+		code -= 0x0020;
+		return String.fromCharCode(code);
+	},
+  
 	// URI manipulation (from textlink) 
 	
 	get kURIPattern() 
 	{
-		if (!this._kURIPattern)
-			this._kURIPattern = this.kURIPattern_base.replace(
+		if (!this._kURIPattern) {
+			this._kURIPattern = this.kURIPattern_base
+				.replace(
+					/%SCHEMER_PATTERN%/g,
+					'('+this.schemers.join('|')+'):'
+				)
+				.replace(
 					/%PART_PATTERN%/g,
 					this.kURIPattern_part
-				).replace(
+				)
+				.replace(
 					/%DOMAIN_PATTERN%/g,
 					'[0-9a-z\\.-]+\\.('+this.kTopLevelDomains.join('|')+')\\b'
 				);
+		}
 
 		return this._kURIPattern;
 	},
@@ -139,13 +265,23 @@ var ClipboardObserverService = {
  
 	get kURIPatternMultibyte() 
 	{
-		if (!this._kURIPatternMultibyte)
-			this._kURIPatternMultibyte = this.kURIPatternMultibyte_base.replace(
+		if (!this._kURIPatternMultibyte) {
+			this._kURIPatternMultibyte = this.kURIPatternMultibyte_base
+				.replace(
+					/%SCHEMER_PATTERN%/g,
+					'('+
+					this.schemers.map(function(aSchemer) {
+						return aSchemer+'|'+this.convertHalfWidthToFullWidth(aSchemer);
+					}, this).join('|')+
+					')[:\uff1a]'
+				)
+				.replace(
 					/%PART_PATTERN%/g,
 					this.kURIPatternMultibyte_part
-				).replace(
+				)
+				.replace(
 					/%DOMAIN_PATTERN%/g,
-					'[0-9a-z\\.-]+[\\.\uff0e]('+this.kTopLevelDomains.join('|')+')\\b'
+					'[0-9a-z\\.-]+[\\.]('+this.kTopLevelDomains.join('|')+')\\b'
 /*
 					'[0-9a-z\\.-\uff10-\uff19\uff41-\uff5a\uff21-\uff3a\uff0e\uff0d]+[\\.\uff0e]('+
 					this.kTopLevelDomains.join('|')+
@@ -154,21 +290,22 @@ var ClipboardObserverService = {
 					')'
 */
 				);
+		}
 
 		return this._kURIPatternMultibyte;
 	},
 	_kURIPatternMultibyte : null,
  
-	kURIPattern_base : '\\(?([\\*\\+\\w]+:(//)?%PART_PATTERN%|%DOMAIN_PATTERN%(/%PART_PATTERN%)?)', 
-	kURIPatternMultibyte_base : '[\\(\uff08]?([\\*\\+a-z0-9_\uff41-\uff5a\uff21-\uff3a\uff10-\uff19\uff3f]+[:\uff1a](//|\uff0f\uff0f)?%PART_PATTERN%|%DOMAIN_PATTERN%([/\uff0f]%PART_PATTERN%)?)',
+	kURIPattern_base : '\\(?(%SCHEMER_PATTERN%(//)?%PART_PATTERN%|%DOMAIN_PATTERN%(/%PART_PATTERN%)?)', 
+	kURIPatternMultibyte_base : '[\\(\uff08]?(%SCHEMER_PATTERN%(//|\uff0f\uff0f)?%PART_PATTERN%|%DOMAIN_PATTERN%([/\uff0f]%PART_PATTERN%)?)',
+
+	kSchemerPattern : '[\\*\\+a-z0-9_]+:',
+	kSchemerPatternMultibyte : '[\\*\\+a-z0-9_\uff41-\uff5a\uff21-\uff3a\uff10-\uff19\uff3f]+[:\uff1a]',
 
 	kURIPattern_part : '[-_\\.!~*\'()a-z0-9;/?:@&=+$,%#]+',
-	kURIPatternMultibyte_part : '[-_\\.!~*\'()a-z0-9;/?:@&=+$,%#\uff0d\uff3f\uff0e\uff01\uff5e\uffe3\uff0a\u2019\uff08\uff09\uff41-\uff5a\uff21-\uff3a\uff10-\uff19\uff1b\uff0f\uff1f\uff1a\uff20\uff06\uff1d\uff0b\uff04\uff0c\uff05\uff03]+',
+	kURIPatternMultibyte_part : '[-_\\.!~*\'()a-z0-9;/?:@&=+$,%#\u301c\uff0d\uff3f\uff0e\uff01\uff5e\uffe3\uff0a\u2019\uff08\uff09\uff41-\uff5a\uff21-\uff3a\uff10-\uff19\uff1b\uff0f\uff1f\uff1a\uff20\uff06\uff1d\uff0b\uff04\uff0c\uff05\uff03]+',
 
-	kOnebyteArray : '-_.!~~*\'()acdefghijklmnopqrstuvwxyzACDEFGHIJKLMNOPQRSTUVWXYZ0123456789;/?:@&=+$,%#',
-	kMultibyteArray : '\uff0d\uff3f\uff0e\uff01\uffe3\uff5e\uff0a\u2019\uff08\uff09\uff41\uff43\uff44\uff45\uff46\uff47\uff48\uff49\uff4a\uff4b\uff4c\uff4d\uff4e\uff4f\uff50\uff51\uff52\uff53\uff54\uff55\uff56\uff57\uff58\uff59\uff5a\uff21\uff23\uff24\uff25\uff26\uff27\uff28\uff29\uff2a\uff2b\uff2c\uff2d\uff2e\uff2f\uff30\uff31\uff32\uff33\uff34\uff35\uff36\uff37\uff38\uff39\uff3a\uff10\uff11\uff12\uff13\uff14\uff15\uff16\uff17\uff18\uff19\uff1b\uff0f\uff1f\uff1a\uff20\uff06\uff1d\uff0b\uff04\uff0c\uff05\uff03',
-
-	// http://www4.plala.or.jp/nomrax/TLD/ 
+	// http://www4.plala.or.jp/nomrax/TLD/
 	// http://ja.wikipedia.org/wiki/%E3%83%88%E3%83%83%E3%83%97%E3%83%AC%E3%83%99%E3%83%AB%E3%83%89%E3%83%A1%E3%82%A4%E3%83%B3%E4%B8%80%E8%A6%A7
 	kTopLevelDomains : [
 		// gTLD
@@ -451,77 +588,104 @@ var ClipboardObserverService = {
 		'zw'
 	],
  
-	// from http://taken.s101.xrea.com/blog/article.php?id=510
-	convertFullWidthToHalfWidth : function(aString) 
-	{
-		return aString.replace(this.fullWidthRegExp, this.f2h);
-	},
-	fullWidthRegExp : /[\uFF01\uFF02\uFF03\uFF04\uFF05\uFF06\uFF07\uFF08\uFF09\uFF0A\uFF0B\uFF0C\uFF0D\uFF0E\uFF0F\uFF10\uFF11\uFF12\uFF13\uFF14\uFF15\uFF16\uFF17\uFF18\uFF19\uFF1A\uFF1B\uFF1C\uFF1D\uFF1E\uFF1F\uFF20\uFF21\uFF22\uFF23\uFF24\uFF25\uFF26\uFF27\uFF28\uFF29\uFF2A\uFF2B\uFF2C\uFF2D\uFF2E\uFF2F\uFF30\uFF31\uFF32\uFF33\uFF34\uFF35\uFF36\uFF37\uFF38\uFF39\uFF3A\uFF3B\uFF3C\uFF3D\uFF3E\uFF3F\uFF40\uFF41\uFF42\uFF43\uFF44\uFF45\uFF46\uFF47\uFF48\uFF49\uFF4A\uFF4B\uFF4C\uFF4D\uFF4E\uFF4F\uFF50\uFF51\uFF52\uFF53\uFF54\uFF55\uFF56\uFF57\uFF58\uFF59\uFF5A\uFF5B\uFF5C\uFF5D\uFF5E]/g,
-	f2h : function() {
-		var str = arguments[0];
-		var code = str.charCodeAt(0);
-		code &= 0x007F;
-		code += 0x0020;
-		return String.fromCharCode(code);
-	},
-
-	convertHalfWidthToFullWidth : function(aString)
-	{
-		return aString.replace(this.halfWidthRegExp, this.h2f);
-	},
-	halfWidthRegExp : /[!"#$%&'\(\)\*\+,-\.\/0123456789:;<=>\?@ABCDEFGHIJKLMNOPQRSTUVWXYZ\[\\\]\^_`abcdefghijklmnopqrstuvwxyz\{\|\}~]/g,
-	h2f : function() {
-		var str = arguments[0];
-		var code = str.charCodeAt(0);
-		code += 0xFF00;
-		code -= 0x0020;
-		return String.fromCharCode(code);
-	},
- 
 	matchURIRegExp : function(aString) 
 	{
-		var regexp = [];
-		if (this.getPref('observeclipboard.multibyte.enabled')) {
-			regexp.push(this.kURIPatternMultibyte);
+		this._updateURIRegExp();
+		return aString.match(this._URIMatchingRegExp);
+	},
+	isHeadOfNewURI : function(aString)
+	{
+		this._updateURIRegExp();
+		var match = aString.match(this._URIMatchingRegExp_fromHead);
+		match = match ? match[1] : '' ;
+		return this.hasLoadableSchemer(match) ? match == aString : false ;
+	},
+	_URIMatchingRegExp : null,
+	_URIMatchingRegExp_fromHead : null,
+	_updateURIRegExp : function()
+	{
+		if (this._URIMatchingRegExp) return;
+		var regexp;
+		if (this.shouldParseMultibyteCharacters) {
+			this._URIMatchingRegExp_fromHead = new RegExp(this.kURIPatternMultibyte, 'i');
+			regexp = this.kURIPatternMultibyte;
 		}
 		else {
-			regexp.push(this.kURIPattern);
+			this._URIMatchingRegExp_fromHead = new RegExp(this.kURIPattern, 'i');
+			regexp = this.kURIPattern;
 		}
-		return aString.match(new RegExp(regexp.join('|'), 'ig'));
+		this._URIMatchingRegExp = new RegExp(regexp, 'ig');
 	},
  
-	fixupURI : function(aURIComponent) 
+	hasLoadableSchemer : function(aURI) 
 	{
-		if (this.getPref('observeclipboard.multibyte.enabled')) {
+		if (!this._schemerRegExp) {
+			var schemers = this.schemers;
+			var colon = ':';
+			if (this.shouldParseMultibyteCharacters) {
+				schemers = schemers.map(function(aSchemer) {
+						return aSchemer+'|'+this.convertHalfWidthToFullWidth(aSchemer);
+					}, this);
+				colon = '[:\uff1a]';
+			}
+			this._schemerRegExp = new RegExp('^('+this.schemers.join('|')+')'+colon, 'i');
+		}
+		return this._schemerRegExp.test(aURI);
+	},
+	_schemerRegExp : null,
+ 
+	hasSchemer : function(aInput) 
+	{
+		return this._firstSchemerRegExp.test(aInput);
+	},
+	removeSchemer : function(aInput)
+	{
+		return aInput.replace(this._firstSchemerRegExp, '');
+	},
+	get _firstSchemerRegExp()
+	{
+		if (!this.__firstSchemerRegExp) {
+			this.__firstSchemerRegExp = new RegExp('^'+this.kSchemerPatternMultibyte, 'i');
+		}
+		return this.__firstSchemerRegExp;
+	},
+	__firstSchemerRegExp : null,
+ 
+	fixupURI : function(aURIComponent, aBaseURI) 
+	{
+		if (this.shouldParseMultibyteCharacters) {
 			aURIComponent = this.convertFullWidthToHalfWidth(aURIComponent);
 		}
 
 		aURIComponent = this.sanitizeURIString(aURIComponent);
-		if (!aURIComponent) return null;
+		if (!aURIComponent) {
+			return null;
+		}
 
 		aURIComponent = this.fixupSchemer(aURIComponent);
 
-		var regexp = new RegExp();
-		if (
-			regexp.compile(
-				'('+
-				this.getPref('observeclipboard.schemer')
-						.replace(/([\(\)\+\.\{\}])/g, '\\$1')
-						.replace(/\?/g, '.')
-						.replace(/\*/g, '.+')
-						.replace(/[,\| \n\r\t]+/g, '|')+
-				')'
-			).test(
-				aURIComponent.substr(0, aURIComponent.indexOf(':')).toLowerCase()
-			)
-			)
-			return aURIComponent;
-
-		return null;
+		return this.hasLoadableSchemer(aURIComponent) ? aURIComponent : null ;
 	},
 	
 	sanitizeURIString : function(aURIComponent) 
 	{
+		// escape patterns like program codes like JavaScript etc.
+		if (!this._topLevelDomainsRegExp) {
+			this._topLevelDomainsRegExp = new RegExp('^(' + this.kTopLevelDomains.join('|') + ')$');
+		}
+		if (this.shouldParseRelativePath) {
+			if (
+				(
+					aURIComponent.match(/^([^\/\.]+\.)+([^\/\.]+)$/) &&
+					!RegExp.$2.match(this._topLevelDomainsRegExp)
+				) ||
+				aURIComponent.match(/(\(\)|\([^\/]+\)|[;\.,])$/)
+				)
+				return '';
+		}
+
+		aURIComponent = this.removeParen(aURIComponent);
+
 		while (
 			aURIComponent.match(/^\((.*)$/) ||
 			aURIComponent.match(/^([^\(]*)\)$/) ||
@@ -530,34 +694,70 @@ var ClipboardObserverService = {
 			aURIComponent.match(/^([^\']*)\'$/) ||
 			aURIComponent.match(/^(.+)\s*\([^\)]+$/) ||
 			aURIComponent.match(/^[^\(]+\)\s*(.+)$/) ||
-			aURIComponent.match(/^[^\.\/:]*\((.+)\)[^\.\/]*$/)
+			aURIComponent.match(/^[^\.\/:]*\((.+)\)[^\.\/]*$/) ||
+			(
+				!this.shouldParseRelativePath &&
+				aURIComponent.match(/^[\.\/:](.+)$/)
 			)
+			) {
 			aURIComponent = RegExp.$1;
+		}
+
+		aURIComponent = this.removeParen(aURIComponent);
 
 		return aURIComponent; // aURIComponent.replace(/^.*\((.+)\).*$/, '$1');
 	},
+	_topLevelDomainsRegExp : null,
+ 
+	removeParen : function(aInput) 
+	{
+		var doRemoveParen = function(aRegExp) {
+				let match = aInput.match(aRegExp);
+				if (!match) return false;
+				aInput = match[1];
+				return true;
+			};
+		while (this._parenPatterns.some(doRemoveParen)) {}
+		return aInput;
+	},
+	_parenPatterns : [
+		/^["\u201d\u201c\u301d\u301f](.+)["\u201d\u201c\u301d\u301f]$/,
+		/^[`'\u2019\u2018](.+)[`'\u2019\u2018]$/,
+		/^[(\uff08](.+)[)\uff09]$/,
+		/^[{\uff5b](.+)[}\uff5d]$/,
+		/^[\[\uff3b](.+)[\]\uff3d]$/,
+		/^[<\uff1c](.+)[>\uff1e]$/,
+		/^[\uff62\u300c](.+)[\uff63\u300d]$/,
+		/^\u226a(.+)\u226b$/,
+		/^\u3008(.+)\u3009$/,
+		/^\u300a(.+)\u300b$/,
+		/^\u300e(.+)\u300f$/,
+		/^\u3010(.+)\u3011$/,
+		/^\u3014(.+)\u3015$/,
+		/^(.+)["\u201d\u201c\u301d\u301f][^"\u201d\u201c\u301d\u301f]*$/,
+		/^(.+)[`'\u2019\u2018][^`'\u2019\u2018]*$/,
+		/^(.+)[(\uff08][^)\uff09]*$/,
+		/^(.+)[{\uff5b][^}\uff5d]*$/,
+		/^(.+)[\[\uff3b][^\]\uff3d]*$/,
+		/^(.+)[<\uff1c][^>\uff1e]*$/,
+		/^(.+)[\uff62\u300c][^\uff63\u300d]*$/,
+		/^(.+)\u226a[^\u226b$]*/,
+		/^(.+)\u3008[^\u3009$]*/,
+		/^(.+)\u300a[^\u300b$]*/,
+		/^(.+)\u300e[^\u300f$]*/,
+		/^(.+)\u3010[^\u3011$]*/,
+		/^(.+)\u3014[^\u3015$]*/
+	],
  
 	fixupSchemer : function(aURI) 
 	{
-		if (!this.fixupSchemer_table) {
-			this.fixupSchemer_table = this.getPref('observeclipboard.schemer.fixup.table')
-						.replace(/(\s*[^:\s]+)\s*=>\s*([^:\s]+)(\s*([,\| \n\r\t]|$))/g, '$1:=>$2:$3');
-			this.fixupSchemer_targets = this.fixupSchemer_table
-						.replace(/\s*=>\s*[^,\| \n\r\t]+|\s*=>\s*[^,\| \n\r\t]+$/g, '')
-						.replace(/([\(\)\+\.\{\}])/g, '\\$1')
-						.replace(/\?/g, '.')
-						.replace(/\*/g, '.+')
-						.replace(/\s*[,\| \n\r\t]+\s*/g, '|');
-			this.fixupSchemer_targetsRE = new RegExp('^('+this.fixupSchemer_targets+')', 'g');
-		}
-
-		if (aURI.match(this.fixupSchemer_targetsRE)) {
-			var target = RegExp.$1;
+		var match = aURI.match(this._fixupTargetsRegExp);
+		if (match) {
+			var target = match[1];
 			var table = this.evalInSandbox('(function() {'+
-					'var targets = '+this.fixupSchemer_targets.quote()+';'+
-					'var table = '+this.fixupSchemer_table.quote()+';'+
+					'var table = '+this._fixupTable.quote()+';'+
 					'var target = '+target.quote()+';'+
-					((this.fixupSchemer_targets+'|')
+					((this._fixupTargetsPattern+'|')
 						.replace(
 							/([^|]+)\|/g,
 							<![CDATA[
@@ -567,30 +767,28 @@ var ClipboardObserverService = {
 						))+
 					'return table;'+
 				'})()');
-
-			var regexp = new RegExp();
-			if (table.match(
-					regexp.compile(
-						'([,\\| \\n\\r\\t]|^)'+
-						target.replace(/([\(\)\+\?\.\{\}])/g, '\\$1')
-							.replace(/\?/g, '.')
-							.replace(/\*/g, '.+')+
-						'\\s*=>\\s*([^,\\| \\n\\r\\t]+)'
-					)
-				))
-				aURI = aURI.replace(target, RegExp.$2);
+			match = table.match(new RegExp(
+					'(?:[,\\| \\n\\r\\t]|^)'+
+					target.replace(/([\(\)\+\?\.\{\}])/g, '\\$1')
+						.replace(/\?/g, '.')
+						.replace(/\*/g, '.+')+
+					'\\s*=>\\s*([^,\\| \\n\\r\\t]+)'
+				));
+			if (match)
+				aURI = aURI.replace(target, match[1]);
 		}
-		else if (!/^\w+:/.test(aURI)) {
-			var schemer = this.getPref('observeclipboard.schemer.fixup.default');
+		else if (!this._firstSchemerRegExp.test(aURI)) {
+			var schemer = this.schemerFixupDefault;
 			if (schemer)
 				aURI = schemer+'://'+aURI;
 		}
 
 		return aURI;
 	},
-	fixupSchemer_table : null,
-	fixupSchemer_targets : null,
-	fixupSchemer_targetsRE : null,
+	_fixupTable : null,
+	_fixupTargets : null,
+	_fixupTargetsPattern : null,
+	_fixupTargetsRegExp : null,
    
 	getURIsFromClipboard : function() 
 	{
@@ -623,17 +821,6 @@ var ClipboardObserverService = {
 	{
 		var uris = this.getURIsFromClipboard();
 		return uris.length ? uris[0] : null ;
-	},
- 
-	evalInSandbox : function(aCode, aOwner) 
-	{
-		try {
-			var sandbox = new Components.utils.Sandbox(aOwner || 'about:blank');
-			return Components.utils.evalInSandbox(aCode, sandbox);
-		}
-		catch(e) {
-		}
-		return void(0);
 	},
  
 	init : function() 
@@ -678,8 +865,8 @@ var ClipboardObserverService = {
 			10
 		);
 
-		this.addPrefListener(gClipboardObserverPrefListener);
-		gClipboardObserverPrefListener.observe(null, 'nsPref:changed', null);
+		this.addPrefListener(this);
+		this.onPrefChange();
 	},
 	initialShow : function()
 	{
@@ -723,11 +910,7 @@ var ClipboardObserverService = {
 				window.setTimeout('BrowserToolboxCustomizeDone(true);', 0);
 		}
 	},
-	
-
-	
-
-   
+ 
 	destruct : function() 
 	{
 		if (!this.activated) return;
@@ -746,7 +929,7 @@ var ClipboardObserverService = {
 			this.setPref('observeclipboard.lastURI', String(window.gClipboardObserverLastURI.value));
 	},
  
-	observes : function() 
+	observes : function(aSubject, aTopic, aData) 
 	{
 //try {
 //dump('OBSERVES\n');
@@ -968,36 +1151,43 @@ var ClipboardObserverService = {
 				XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
 				null
 			);
-	}
-  
-}; 
-ClipboardObserverService.__proto__ = window['piro.sakura.ne.jp'].prefs;
+	},
  
-var gClipboardObserverPrefListener = 
-{
-	domains : [
-		'observeclipboard.type',
-		'observeclipboard.interval',
-		'observeclipboard.schemer.fixup.table'
-	],
-	observe : function(aSubject, aTopic, aPrefName)
+	observe : function(aSubject, aTopic, aData) 
 	{
-		if (aTopic != 'nsPref:changed') return;
-
-		var sv = ClipboardObserverService;
+		if (aTopic == 'nsPref:changed')
+			this.onPrefChange(aData);
+	},
+	
+	domains : [ 
+		'observeclipboard.'
+	],
+ 
+	onPrefChange : function(aPrefName) 
+	{
 		switch (aPrefName)
 		{
+			case 'observeclipboard.schemer':
+				this.schemer = value;
+				return;
+
 			case 'observeclipboard.schemer.fixup.table':
-				sv.fixupSchemer_table = null;
-				sv.fixupSchemer_targets = null;
-				sv.fixupSchemer_targetsRE = null;
-				break;
+				this.schemerFixupTable = value;
+				return;
+
+			case 'observeclipboard.schemer.fixup.default':
+				this.schemerFixupDefault = value;
+				return;
+
+			case 'observeclipboard.multibyte.enabled':
+				this.shouldParseMultibyteCharacters = value;
+				return;
 
 			case 'observeclipboard.type':
 			case 'observeclipboard.interval':
 try{
 				var broadcaster = document.getElementById('toggleObserveClipboard-broadcaster');
-				if (sv.getPref('observeclipboard.type') > -1) {
+				if (this.getPref('observeclipboard.type') > -1) {
 					if (broadcaster) {
 						if (broadcaster.getAttribute('checked') != true)
 							window.gClipboardObserverLastContent.shouldIgnoreFirst = true;
@@ -1005,11 +1195,11 @@ try{
 						broadcaster.setAttribute('tooltiptext', broadcaster.getAttribute('tooltiptext-checked'));
 					}
 
-					if (sv.timer) return;
+					if (this.timer) return;
 
-					var interval = sv.getPref('observeclipboard.interval');
+					var interval = this.getPref('observeclipboard.interval');
 					if (interval < 1) interval = 1;
-					sv.timer = window.setInterval(sv.observes, interval);
+					this.timer = window.setInterval(this.observes, interval);
 				}
 				else {
 					if (broadcaster) {
@@ -1017,9 +1207,9 @@ try{
 						broadcaster.setAttribute('tooltiptext', broadcaster.getAttribute('tooltiptext-unchecked'));
 					}
 
-					if (sv.timer) {
-						window.clearInterval(sv.timer);
-						sv.timer = null;
+					if (this.timer) {
+						window.clearInterval(this.timer);
+						this.timer = null;
 					}
 				}
 }
@@ -1028,7 +1218,9 @@ catch(e){
 				break;
 		}
 	}
-};
+   
+}; 
+ClipboardObserverService.__proto__ = window['piro.sakura.ne.jp'].prefs;
  
 window.addEventListener('unload', function() 
 {
