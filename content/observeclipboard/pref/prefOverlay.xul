@@ -16,7 +16,7 @@
    - The Original Code is the Clipboard Observer.
    -
    - The Initial Developer of the Original Code is SHIMODA Hiroshi.
-   - Portions created by the Initial Developer are Copyright (C) 2004-2008
+   - Portions created by the Initial Developer are Copyright (C) 2004-2009
    - the Initial Developer. All Rights Reserved.
    -
    - Contributor(s): SHIMODA Hiroshi <piro@p.club.ne.jp>
@@ -38,8 +38,6 @@
 <?xml-stylesheet href="chrome://observeclipboard/content/pref/prefOverlay.css" type="text/css"?>
 
 <!DOCTYPE overlay [
-<!ENTITY % versionDTD SYSTEM "chrome://observeclipboard/content/_version.dtd">
-%versionDTD;
 <!ENTITY % observeclipboardDTD SYSTEM "chrome://observeclipboard/locale/">
 %observeclipboardDTD;
 ]>
@@ -49,7 +47,6 @@
 <box orient="vertical" id="observeclipboardPrefs">
 
 <script type="application/x-javascript" src="chrome://observeclipboard/content/observeclipboard.js"/>
-<script type="application/x-javascript" src="chrome://observeclipboard/content/pref/exUnregisterer.js"/>
 <script type="application/x-javascript" src="chrome://observeclipboard/content/pref/prefOverlay.js"/>
 <script type="application/x-javascript"><![CDATA[
 
@@ -200,31 +197,6 @@ function controlLinkedItemsType()
 			label="&multibyte.enabled;"
 			prefstring="observeclipboard.multibyte.enabled"/>
 	</groupbox>
-
-<spacer flex="1"/>
-
-<groupbox orient="vertical">
-	<caption label="&about.title;"/>
-	<box orient="horizontal">
-		<spacer flex="1"/>
-		<description value="&about.name_before;&version;&about.name_after;"/>
-		<spacer flex="1"/>
-	</box>
-	<box orient="horizontal">
-		<spacer flex="1"/>
-		<description value="&about.destributed;"
-			onclick="loadURI('http://piro.sakura.ne.jp/');"
-			class="text-link"/>
-		<spacer flex="1"/>
-	</box>
-	<box orient="horizontal" id="unregisterBlock">
-		<spacer flex="2"/>
-		<button flex="1"
-			label="&about.uninstall;"
-			oncommand="Unregister();"/>
-		<spacer flex="2"/>
-	</box>
-</groupbox>
 
 </box>
 

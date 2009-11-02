@@ -14,7 +14,7 @@
  * The Original Code is the Clipboard Observer.
  *
  * The Initial Developer of the Original Code is SHIMODA Hiroshi.
- * Portions created by the Initial Developer are Copyright (C) 2004-2008
+ * Portions created by the Initial Developer are Copyright (C) 2004-2009
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s): SHIMODA Hiroshi <piro@p.club.ne.jp>
@@ -97,50 +97,3 @@ function spinButtonsUpDown(aEvent, aTargetID, aMin, aMax)
 	node.value = val;
 }
  
-// About 
-const WindowManager = Components.classes['@mozilla.org/appshell/window-mediator;1'].getService(Components.interfaces.nsIWindowMediator);
-function opener()
-{
-	return WindowManager.getMostRecentWindow('navigator:browser');
-}
-
-function loadURI(uri)
-{
-	if (opener())
-		opener().loadURI(uri);
-	else
-		window.open(uri);
-}
- 
-// Uninstall 
-var STRBUNDLE = Components.classes['@mozilla.org/intl/stringbundle;1'].getService(Components.interfaces.nsIStringBundleService);
-var msg = STRBUNDLE.createBundle('chrome://observeclipboard/locale/observeclipboard.properties');
-var unreg;
-if (location.href.indexOf('prefDialog.xul') < 0)
-	unreg = new exUnregisterer(
-		'chrome://observeclipboard/content/contents.rdf',
-		'jar:%chromeFolder%observeclipboard.jar!/locale/en-US/observeclipboard/contents.rdf',
-		'jar:%chromeFolder%observeclipboard.jar!/locale/ja-JP/observeclipboard/contents.rdf'
-	);
-
-
-function Unregister()
-{
-	if (!confirm(msg.GetStringFromName('uninstall_confirm'))) return;
-
-	if (!confirm(msg.GetStringFromName('uninstall_prefs_confirm')))
-		window.unreg.removePrefs('observeclipboard');
-
-	window.unreg.unregister();
-
-	alert(
-		msg.GetStringFromName('uninstall_removefile').replace(/%S/i,
-			window.unreg.getFilePathFromURLSpec(
-				(window.unreg.exists(window.unreg.UChrome+'observeclipboard.jar') ? window.unreg.UChrome+'observeclipboard.jar' : window.unreg.Chrome+'observeclipboard.jar' )
-			)
-		)
-	);
-
-	window.close();
-}
-  
