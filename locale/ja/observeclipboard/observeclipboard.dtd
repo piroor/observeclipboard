@@ -41,14 +41,14 @@
 
 <!ENTITY type_before  "クリップボードにURIがコピーされた時：">
 <!ENTITY type_after   "">
-<!ENTITY type.current "自動で読み込む">
+<!ENTITY type.current "自動で現在のタブに読み込む">
 <!ENTITY type.tab     "自動で新しいタブを開く">
 <!ENTITY type.window  "自動で新しいウィンドウを開く">
 <!ENTITY type.none    "（何もしない）">
 
 <!ENTITY type_multiple_before  "複数のURIがコピーされた時：">
 <!ENTITY type_multiple_after   "">
-<!ENTITY type_multiple.single  "最初の一つだけを上の設定に従って読み込む">
+<!ENTITY type_multiple.single  "最初の1つだけを上の設定に従って読み込み、2つ目以降を無視する">
 <!ENTITY type_multiple.tab     "すべてを新しいタブで開く">
 <!ENTITY type_multiple.window  "すべてを新しいウィンドウで開く">
 <!ENTITY type_multiple.none    "（何もしない）">

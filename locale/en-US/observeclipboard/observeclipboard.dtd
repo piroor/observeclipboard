@@ -41,16 +41,16 @@
 
 <!ENTITY type_before  "When an URI is copied into the clipboard:">
 <!ENTITY type_after   "">
-<!ENTITY type.current "Load automatically">
-<!ENTITY type.tab     "Open New Tab automatically">
-<!ENTITY type.window  "Open New Window automatically">
+<!ENTITY type.current "Load into the Current Tab automatically">
+<!ENTITY type.tab     "Open a New Tab automatically">
+<!ENTITY type.window  "Open a New Window automatically">
 <!ENTITY type.none    "(no reaction)">
 
 <!ENTITY type_multiple_before  "When multiple URIs are copied:">
 <!ENTITY type_multiple_after   "">
-<!ENTITY type_multiple.single  "Load the first item as the setting above">
-<!ENTITY type_multiple.tab     "Open All in New Tabs">
-<!ENTITY type_multiple.window  "Open All in New Windows">
+<!ENTITY type_multiple.single  "Load only the first URI as the setting above, and ignore others">
+<!ENTITY type_multiple.tab     "Open All URIs in New Tabs">
+<!ENTITY type_multiple.window  "Open All URIs in New Windows">
 <!ENTITY type_multiple.none    "(no reaction)">
 
 <!ENTITY interval_before "Observe the clipboard every ">

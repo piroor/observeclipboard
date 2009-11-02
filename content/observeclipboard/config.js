@@ -52,15 +52,12 @@ function controlLinkedItemsType()
 	);
 	controlLinkedItems(
 		type,
-		value == 1 ||
-		value_multiple == 1,
+		value != -1 && (value == 1 || value_multiple == 1),
 		'linked-loadInBackground'
 	);
 	controlLinkedItems(
 		type,
-		value == 0 ||
-		value == 1 ||
-		value_multiple == 1,
+		value != -1 && (value < 2 || value_multiple == 1),
 		'linked-loadInBackgroundWindow'
 	);
 }
