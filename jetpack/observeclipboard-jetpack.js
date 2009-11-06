@@ -780,10 +780,12 @@ var ClipboardObserverService = {
 			sv.modeMultiple == 0)
 			uris = [uris[0]];
 
-		if (uris.length == 1 &&
-			jetpack.tabs.some(function(aTab) {
-				return aTab.url == uris[0];
-			})) {
+		uris = uris.filter(function(aURI) {
+				return jetpack.tabs.every(function(aTab) {
+						return aTab.url != aURI;
+					})
+			});
+		if (!uris.length) {
 			sv.lastContent.observingNow = false;
 			return;
 		}
