@@ -42,6 +42,8 @@
  
 var ClipboardObserverService = { 
 
+	active : true,
+
 	interval : 100,
 
 	timer : null,
@@ -838,14 +840,24 @@ ClipboardObserverService.schemerFixupTable = 'www=>http://www ftp.=>ftp://ftp. i
 ClipboardObserverService.shouldParseMultibyteCharacters = true;
 
 
-jetpack.future.import("clipboard");
+jetpack.future.import('storage.simple');
+jetpack.future.import('clipboard');
 
+if (jetpack.storage.simple.active) {
+	jetpack.storage.simple.active.forEach(function(aValue){
+		ClipboardObserverService.active = aValue;
+	});
+}
+
+var checked = ClipboardObserverService.active ? 'checked="true"' : '' ;
 jetpack.statusBar.append({
-	html: '<label><input type="checkbox" checked="true" />Observe Clipboard</label>',
+	html: '<label><input type="checkbox" '+checked+' />Observe Clipboard</label>',
 	width : 130,
 	onReady: function(aWidget){
 		$('input', aWidget).click(function(){
-			if (this.checked)
+			ClipboardObserverService.active = this.checked;
+			jetpack.storage.simple.active = [this.checked];
+			if (ClipboardObserverService.active)
 				ClipboardObserverService.start();
 			else
 				ClipboardObserverService.stop();
@@ -853,4 +865,5 @@ jetpack.statusBar.append({
 	}
 });
 
-ClipboardObserverService.start();
+if (ClipboardObserverService.active)
+	ClipboardObserverService.start();
