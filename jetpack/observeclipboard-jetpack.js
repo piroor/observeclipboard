@@ -712,6 +712,8 @@ var ClipboardObserverService = {
 	_fixupTargetsRegExp : null,
    
 
+
+
 	get clipboardContent()
 	{
 		return jetpack.clipboard.get('text/unicode');
@@ -742,26 +744,6 @@ var ClipboardObserverService = {
 		catch(e) {
 		}
 		return res;
-	},
- 
-	init : function() 
-	{
-		this.lastURI = '';
-		this.lastContent = {
-			value             : '',
-			shouldIgnoreFirst : (this.clipboardContent ? true : false ),
-			observingNow      : false
-		};
-
-		this.timer = setInterval(this.observes, this.interval);
-	},
-
-	destroy : function() 
-	{
-		if (this.timer) {
-			clearInterval(this.timer);
-			this.timer = null;
-		}
 	},
 
 	observes : function() 
@@ -825,7 +807,27 @@ var ClipboardObserverService = {
 		sv.lastContent.observingNow = false;
 	},
  
-   
+
+	start : function()
+	{
+		if (this.timer) return;
+
+		this.lastURI = '';
+		this.lastContent = {
+			value             : '',
+			shouldIgnoreFirst : (this.clipboardContent ? true : false ),
+			observingNow      : false
+		};
+
+		this.timer = setInterval(this.observes, this.interval);
+	},
+
+	stop : function() 
+	{
+		if (!this.timer) return;
+		clearInterval(this.timer);
+		this.timer = null;
+	}
 }; 
  
 
@@ -836,4 +838,17 @@ ClipboardObserverService.shouldParseMultibyteCharacters = true;
 
 jetpack.future.import("clipboard");
 
-ClipboardObserverService.init();
+jetpack.statusBar.append({
+	html: '<label><input type="checkbox" checked="true" />Observe Clipboard</label>',
+	width : 130,
+	onReady: function(aWidget){
+		$('input', aWidget).click(function(){
+			if (this.checked)
+				ClipboardObserverService.start();
+			else
+				ClipboardObserverService.stop();
+		});
+	}
+});
+
+ClipboardObserverService.start();
