@@ -651,7 +651,7 @@ var ClipboardObserverService = {
 	},
 	__firstSchemerRegExp : null,
  
-	fixupURI : function(aURIComponent, aBaseURI) 
+	fixupURI : function(aURIComponent) 
 	{
 		if (this.shouldParseMultibyteCharacters) {
 			aURIComponent = this.convertFullWidthToHalfWidth(aURIComponent);
@@ -933,7 +933,7 @@ var ClipboardObserverService = {
 			this.setPref('observeclipboard.lastURI', String(window.gClipboardObserverLastURI.value));
 	},
  
-	observes : function(aSubject, aTopic, aData) 
+	observes : function() 
 	{
 //try {
 //dump('OBSERVES\n');
@@ -1005,10 +1005,6 @@ var ClipboardObserverService = {
 		window.gClipboardObserverLastURI.value = uris.join('|');
 
 
-		var firstTab;
-		var tab;
-
-
 		if (
 			uris.length > 1 &&
 			('BookmarksCommand' in window &&
@@ -1021,41 +1017,29 @@ var ClipboardObserverService = {
 			return;
 
 
-		for (i in uris)
-		{
-			if (
-				(
-					('isReallyBlank' in b.selectedTab) ? b.selectedTab.isReallyBlank :
-						(b.currentURI && b.currentURI.spec == 'about:blank')
-				)
-				) {
-				b.loadURI(uris[i]);
+		var firstTab;
+		uris.forEach(function(aURI, aIndex) {
+			var tab;
+			if (openInFlag == 0 ||
+				(!aIndex && b.currentURI && b.currentURI.spec == 'about:blank')) {
+				b.loadURI(aURI);
 				if (!firstTab) firstTab = b.selectedTab;
 			}
 			else {
 				switch (openInFlag)
 				{
-					case 0: // current tab
-						b.loadURI(uris[i]);
-						break;
-
 					case 1: // new tab
-						tab = b.addTab(uris[i]);
-						if (b.tabGroupsAvailable && firstTab) // for TBE
-							tab.parentTab = firstTab;
+					default:
+						tab = b.addTab(aURI);
 						break;
 
 					case 2: // new window
-						window.open(uris[i]);
-						break;
-
-
-					default:
+						window.open(aURI);
 						break;
 				}
 				if (openInFlag == 1 && !firstTab) firstTab = tab;
 			}
-		}
+		});
 
 		switch (openInFlag)
 		{
