@@ -2,7 +2,7 @@
 	@author: SHIMODA Hiroshi aka Piro
 	@url: http://piro.sakura.ne.jp/xul/observeclipboard/
 	@title: Clipboard Observer Jetpack
-	@version: 0.1.1.4.2009110201
+	@version: 0.1.1.1.4.2009110201
 */
 
 /* ***** BEGIN LICENSE BLOCK ***** 
