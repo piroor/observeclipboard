@@ -841,19 +841,16 @@ var ClipboardObserverService = {
  
 	observes : function() 
 	{
-		var shouldOpen = true;
-
 		var clipboardContent = this.getClipboardContent();
+		if (this.lastContent == clipboardContent)
+			return;
+
+		this.lastContent = clipboardContent;
+
 		if (this.shouldIgnoreFirst) {
 			this.shouldIgnoreFirst = false;
-			shouldOpen = false;
-		}
-		if (this.lastContent == clipboardContent)
-			shouldOpen = false;
-
-		this.lastContent.value = clipboardContent;
-		if (!shouldOpen)
 			return;
+		}
 
 		var w = this.WindowManager.getMostRecentWindow('navigator:browser');
 		if (!w) return;
