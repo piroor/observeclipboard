@@ -42,7 +42,7 @@ var ClipboardObserverService = {
 		window.removeEventListener('load', this, false);
 
 		var module = {};
-		Components.utils.import('resource://observeclipboard-modules/prefs.js', module);
+		Components.utils.import('resource://observeclipboard-modules/observeclipboard.js', module);
 		ClipboardObserverService.__proto__ = module.ClipboardObserverService;
 
 		window.setTimeout(
