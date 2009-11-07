@@ -9,8 +9,7 @@ var namespace = {
 			return utils.gBrowser;
 		}
 	};
-utils.include('../../content/observeclipboard/prefs.js', namespace, 'Shift_JIS');
-utils.include('../../content/observeclipboard/observeclipboard.js', namespace, 'Shift_JIS');
+utils.include('../../modules/observeclipboard.js', namespace, 'Shift_JIS');
 
 var sv;
 

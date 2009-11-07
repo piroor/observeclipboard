@@ -8,3 +8,5 @@ locale	observeclipboard	en-US	jar:chrome/observeclipboard.jar!/locale/en-US/obse
 locale	observeclipboard	ja	jar:chrome/observeclipboard.jar!/locale/ja/observeclipboard/
 
 skin	observeclipboard	classic/1.0	jar:chrome/observeclipboard.jar!/skin/classic/observeclipboard/
+
+resource observeclipboard-modules modules/
