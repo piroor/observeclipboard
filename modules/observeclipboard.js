@@ -34,11 +34,16 @@
  * ***** END LICENSE BLOCK ***** */
  
 var EXPORTED_SYMBOLS = ['ClipboardObserverService'];
+var Cc = Components.classes;
+var Ci = Components.interfaces;
  
 var ClipboardObserverService = { 
 
 	lastURI : '',
 	lastContent : null,
+
+	type : 0,
+	typeMultiple : 0,
 
 	timer : null,
 	
@@ -136,7 +141,7 @@ var ClipboardObserverService = {
 	get IOService() 
 	{
 		if (!this._IOService) {
-			this._IOService = Components.classes['@mozilla.org/network/io-service;1'].getService(Components.interfaces.nsIIOService);
+			this._IOService = Cc['@mozilla.org/network/io-service;1'].getService(Ci.nsIIOService);
 		}
 		return this._IOService;
 	},
@@ -145,7 +150,7 @@ var ClipboardObserverService = {
 	get WindowManager() 
 	{
 		if (!this._WindowManager) {
-			this._WindowManager = Components.classes['@mozilla.org/appshell/window-mediator;1'].getService(Components.interfaces.nsIWindowMediator);
+			this._WindowManager = Cc['@mozilla.org/appshell/window-mediator;1'].getService(Ci.nsIWindowMediator);
 		}
 		return this._WindowManager;
 	},
@@ -154,7 +159,7 @@ var ClipboardObserverService = {
 	get Clipboard() 
 	{
 		if (!this._Clipboard) {
-			this._Clipboard = Components.classes['@mozilla.org/widget/clipboard;1'].getService(Components.interfaces.nsIClipboard);
+			this._Clipboard = Cc['@mozilla.org/widget/clipboard;1'].getService(Ci.nsIClipboard);
 		}
 		return this._Clipboard;
 	},
@@ -165,7 +170,7 @@ var ClipboardObserverService = {
 		var str = '';
 
 		// get string from clipboard
-		var trans = Components.classes['@mozilla.org/widget/transferable;1'].createInstance(Components.interfaces.nsITransferable);
+		var trans = Cc['@mozilla.org/widget/transferable;1'].createInstance(Ci.nsITransferable);
 		trans.addDataFlavor('text/unicode');
 		try {
 			this.Clipboard.getData(trans, this.Clipboard.kSelectionClipboard);
@@ -180,7 +185,7 @@ var ClipboardObserverService = {
 
 		if (!data) return str;
 
-		data = data.value.QueryInterface(Components.interfaces.nsISupportsString);
+		data = data.value.QueryInterface(Ci.nsISupportsString);
 		str = data.data.substring(0, dataLength.value / 2);
 
 		return str;
@@ -811,15 +816,27 @@ var ClipboardObserverService = {
 		this.onPrefChange('observeclipboard.schemer.fixup.table');
 		this.onPrefChange('observeclipboard.schemer.fixup.default');
 		this.onPrefChange('observeclipboard.multibyte.enabled');
+		this.onPrefChange('observeclipboard.multiple.type');
 		this.onPrefChange('observeclipboard.type');
 	},
  
 	start : function() 
 	{
+		if (this.timer) return;
+		this.timer = Cc['@mozilla.org/timer;1']
+			.createInstance(Ci.nsITimer);
+		this.timer.init(
+			this,
+			Math.min(1, this.getPref('observeclipboard.interval')),
+			Ci.nsITimer.TYPE_REPEATING_SLACK
+		);
 	},
  
 	stop : function() 
 	{
+		if (!this.timer) return;
+		this.timer.cancel();
+		this.timer = null;
 	},
  
 	observes : function() 
@@ -849,11 +866,11 @@ var ClipboardObserverService = {
 			return;
 
 		if (uris.length > 1 &&
-			this.getPref('observeclipboard.multiple.type') == 0)
+			this.typeMultiple == 0)
 			uris = [uris[0]];
 
 
-		var openInFlag = this.getPref(uris.length == 1 ? 'observeclipboard.type' : 'observeclipboard.multiple.type' );
+		var openInFlag = uris.length == 1 ? this.type : this.typeMultiple );
 		if (openInFlag < 0)
 			return;
 
@@ -952,8 +969,16 @@ var ClipboardObserverService = {
  
 	observe : function(aSubject, aTopic, aData) 
 	{
-		if (aTopic == 'nsPref:changed')
-			this.onPrefChange(aData);
+		switch (aTopic)
+		{
+			case 'nsPref:changed':
+				this.onPrefChange(aData);
+				return;
+
+			case 'timer-callback':
+				this.observes();
+				return;
+		}
 	},
 	
 	domains : [ 
@@ -981,21 +1006,20 @@ var ClipboardObserverService = {
 				this.shouldParseMultibyteCharacters = value;
 				return;
 
+			case 'observeclipboard.multiple.type':
+				this.typeMultiple = value;
+				return;
+
 			case 'observeclipboard.type':
+				this.type = value;
 			case 'observeclipboard.interval':
-try{
 				if (this.getPref('observeclipboard.type') > -1) {
-					if (!this.timer) {
-						this.shouldIgnoreFirst = true;
-						this.start();
-					}
+					this.shouldIgnoreFirst = true;
+					this.start();
 				}
-				else if (this.timer) {
+				else {
 					this.stop();
 				}
-}
-catch(e){
-}
 				break;
 		}
 	}
