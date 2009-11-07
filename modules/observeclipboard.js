@@ -870,7 +870,7 @@ var ClipboardObserverService = {
 			uris = [uris[0]];
 
 
-		var openInFlag = uris.length == 1 ? this.type : this.typeMultiple );
+		var openInFlag = uris.length == 1 ? this.type : this.typeMultiple ;
 		if (openInFlag < 0)
 			return;
 
