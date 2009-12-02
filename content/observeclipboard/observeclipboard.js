@@ -67,10 +67,12 @@ var ClipboardObserverService = {
 		// show custom buttons only in the initial startup
 		var bar = document.getElementById('nav-bar');
 		if (bar && bar.currentSet) {
-			var STRBUNDLE = Components.classes['@mozilla.org/intl/stringbundle;1'].getService(Components.interfaces.nsIStringBundleService);
+			var STRBUNDLE = Components.classes['@mozilla.org/intl/stringbundle;1']
+							.getService(Components.interfaces.nsIStringBundleService);
 			var msg = STRBUNDLE.createBundle('chrome://observeclipboard/locale/observeclipboard.properties');
 
-			var PromptService = Components.classes['@mozilla.org/embedcomp/prompt-service;1'].getService(Components.interfaces.nsIPromptService);
+			var PromptService = Components.classes['@mozilla.org/embedcomp/prompt-service;1']
+								.getService(Components.interfaces.nsIPromptService);
 
 			var currentset = bar.currentSet;
 			var buttons = currentset.replace(/__empty/, '').split(',');
@@ -141,7 +143,7 @@ var ClipboardObserverService = {
 	{
 		var count = ClipboardObserverService.getTabs(gBrowser).snapshotLength;
 
-		window.__observeclipboard__BrowserOpenTab();
+		window.__observeclipboard__BrowserOpenTab.apply(window, arguments);
 
 		var tabs = ClipboardObserverService.getTabs(gBrowser);
 		if (
