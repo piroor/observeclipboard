@@ -172,12 +172,8 @@ var ClipboardObserverService = {
 		// get string from clipboard
 		var trans = Cc['@mozilla.org/widget/transferable;1'].createInstance(Ci.nsITransferable);
 		trans.addDataFlavor('text/unicode');
-		try {
-			this.Clipboard.getData(trans, this.Clipboard.kSelectionClipboard);
-		}
-		catch(ex) {
-			this.Clipboard.getData(trans, this.Clipboard.kGlobalClipboard);
-		}
+		// this.Clipboard.getData(trans, this.Clipboard.kSelectionClipboard);
+		this.Clipboard.getData(trans, this.Clipboard.kGlobalClipboard);
 
 		var data       = {},
 			dataLength = {};

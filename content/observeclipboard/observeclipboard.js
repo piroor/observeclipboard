@@ -43,7 +43,7 @@ var ClipboardObserverService = {
 
 		var module = {};
 		Components.utils.import('resource://observeclipboard-modules/observeclipboard.js', module);
-		ClipboardObserverService.__proto__ = module.ClipboardObserverService;
+		this.__proto__ = module.ClipboardObserverService;
 
 		window.setTimeout(
 			function()
