@@ -169,6 +169,9 @@ var ClipboardObserverService = {
 	{
 		var str = '';
 
+		if (!this.Clipboard.hasDataMatchingFlavors(['text/unicode'], 1, this.Clipboard.kGlobalClipboard))
+			return str;
+
 		// get string from clipboard
 		var trans = Cc['@mozilla.org/widget/transferable;1'].createInstance(Ci.nsITransferable);
 		trans.addDataFlavor('text/unicode');
@@ -179,7 +182,8 @@ var ClipboardObserverService = {
 			dataLength = {};
 		trans.getTransferData('text/unicode', data, dataLength);
 
-		if (!data) return str;
+		if (!data || !data.value)
+			return str;
 
 		data = data.value.QueryInterface(Ci.nsISupportsString);
 		str = data.data.substring(0, dataLength.value / 2);
