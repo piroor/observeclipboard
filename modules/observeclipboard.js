@@ -1024,7 +1024,7 @@ var ClipboardObserverService = {
 }; 
   
 Components.utils.import('resource://observeclipboard-modules/prefs.js');
-ClipboardObserverService.__proto__ = window['piro.sakura.ne.jp'].prefs; 
+ClipboardObserverService.__proto__ = prefs; 
  
 ClipboardObserverService.init(); 
  
