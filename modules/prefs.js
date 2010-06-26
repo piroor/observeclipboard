@@ -1,6 +1,3 @@
-var EXPORTED_SYMBOLS = ['window'];
-var window = {};
-
 /*
  Preferences Library
 
@@ -22,13 +19,32 @@ var window = {};
    window['piro.sakura.ne.jp'].prefs.addPrefListener(listener);
    window['piro.sakura.ne.jp'].prefs.removePrefListener(listener);
 
- lisence: The MIT License, Copyright (c) 2009 SHIMODA "Piro" Hiroshi
+ lisence: The MIT License, Copyright (c) 2009-2010 SHIMODA "Piro" Hiroshi
    http://www.cozmixng.org/repos/piro/fx3-compatibility-lib/trunk/license.txt
  original:
    http://www.cozmixng.org/repos/piro/fx3-compatibility-lib/trunk/prefs.js
+   http://www.cozmixng.org/repos/piro/fx3-compatibility-lib/trunk/prefs.test.js
 */
+
+/* To work as a JS Code Module (*require namespace.jsm)
+   http://www.cozmixng.org/repos/piro/fx3-compatibility-lib/trunk/namespace.jsm */
+if (typeof window == 'undefined') {
+	this.EXPORTED_SYMBOLS = ['prefs'];
+
+	// If namespace.jsm is available, export symbols to the shared namespace.
+	// See: http://www.cozmixng.org/repos/piro/fx3-compatibility-lib/trunk/namespace.jsm
+	try {
+		let ns = {};
+		Components.utils.import('resource://observeclipboard-modules/namespace.jsm', ns);
+		/* var */ window = ns.getNamespaceFor('piro.sakura.ne.jp');
+	}
+	catch(e) {
+		window = {};
+	}
+}
+
 (function() {
-	const currentRevision = 4;
+	const currentRevision = 6;
 
 	if (!('piro.sakura.ne.jp' in window)) window['piro.sakura.ne.jp'] = {};
 
@@ -53,9 +69,18 @@ var window = {};
 					.getService(Ci.nsIPrefService)
 					.getDefaultBranch(null),
 	 
-		getPref : function(aPrefstring, aBranch) 
+		getPref : function(aPrefstring, aInterface, aBranch) 
 		{
-			if (!aBranch) aBranch = this.Prefs;
+			if (!aInterface || aInterface instanceof Ci.nsIPrefBranch)
+				[aBranch, aInterface] = [aInterface, aBranch];
+
+			aBranch = aBranch || this.Prefs;
+
+			if (aInterface)
+				return (aBranch.getPrefType(aPrefstring) == aBranch.PREF_INVALID) ?
+						null :
+						aBranch.getComplexValue(aPrefstring, aInterface);
+
 			switch (aBranch.getPrefType(aPrefstring))
 			{
 				case aBranch.PREF_STRING:
@@ -73,14 +98,14 @@ var window = {};
 			}
 		},
 
-		getDefaultPref : function(aPrefstring)
+		getDefaultPref : function(aPrefstring, aInterface)
 		{
-			return this.getPref(aPrefstring, this.DefaultPrefs);
+			return this.getPref(aPrefstring, this.DefaultPrefs, aInterface);
 		},
 	 
 		setPref : function(aPrefstring, aNewValue, aBranch) 
 		{
-			if (!aBranch) aBranch = this.Prefs;
+			aBranch = aBranch || this.Prefs;
 			switch (typeof aNewValue)
 			{
 				case 'string':
@@ -103,6 +128,23 @@ var window = {};
 		{
 			if (this.Prefs.prefHasUserValue(aPrefstring))
 				this.Prefs.clearUserPref(aPrefstring);
+		},
+	 
+		getDescendant : function(aRoot, aBranch) 
+		{
+			aBranch = aBranch || this.Prefs;
+			return aBranch.getChildList(aRoot, {}).sort();
+		},
+	 
+		getChildren : function(aRoot, aBranch) 
+		{
+			return this.getDescendant(aRoot, aBranch)
+					.filter(function(aPrefstring) {
+						var name = aPrefstring.replace(aRoot, '');
+						if (name.charAt(0) == '.')
+							name = name.substring(1);
+						return name.indexOf('.') < 0;
+					});
 		},
 	 
 		addPrefListener : function(aObserver) 
@@ -128,3 +170,7 @@ var window = {};
 		}
 	};
 })();
+
+if (window != this) { // work as a JS Code Module
+	this.prefs = window['piro.sakura.ne.jp'].prefs;
+}
