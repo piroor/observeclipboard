@@ -895,8 +895,14 @@ var ClipboardObserverService = {
 		var firstTab;
 		uris.forEach(function(aURI, aIndex) {
 			var tab;
-			if (openInFlag == 0 ||
-				(!aIndex && b.currentURI && b.currentURI.spec == 'about:blank')) {
+			if (
+				openInFlag == 0 ||
+				(
+					!aIndex &&
+					b.currentURI &&
+					(w.isBlankPageURL ? w.isBlankPageURL(b.currentURI.spec) : (b.currentURI.spec == 'about:blank'))
+				)
+				) {
 				b.loadURI(aURI);
 				if (!firstTab) firstTab = b.selectedTab;
 			}
