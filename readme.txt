@@ -168,4 +168,4 @@ Preferences（設定） > Advanced（詳細） > Clipboard Observer（クリップ
 
 ------------------------------------------------------------------------
 Clipboard Observer for NS7 & Moz & Firefox
-Copyright 2004-2005 Piro(SHIMODA Hiroshi)
+Copyright 2004-2005 Piro(YUKI "Piro" Hiroshi)
