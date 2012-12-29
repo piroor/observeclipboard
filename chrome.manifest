@@ -1,12 +1,12 @@
-content	observeclipboard	jar:chrome/observeclipboard.jar!/content/observeclipboard/
+content	observeclipboard	content/observeclipboard/
 
 overlay	chrome://browser/content/browser.xul	chrome://observeclipboard/content/observeclipboard.xul
 overlay	chrome://browser/content/browser.xul	chrome://observeclipboard/content/buttonsOverlay.xul
 overlay	chrome://global/content/customizeToolbar.xul	chrome://observeclipboard/content/buttonsOverlay.xul
 
-locale	observeclipboard	en-US	jar:chrome/observeclipboard.jar!/locale/en-US/observeclipboard/
-locale	observeclipboard	ja	jar:chrome/observeclipboard.jar!/locale/ja/observeclipboard/
+locale	observeclipboard	en-US	locale/en-US/observeclipboard/
+locale	observeclipboard	ja	locale/ja/observeclipboard/
 
-skin	observeclipboard	classic/1.0	jar:chrome/observeclipboard.jar!/skin/classic/observeclipboard/
+skin	observeclipboard	classic/1.0	skin/classic/observeclipboard/
 
 resource observeclipboard-modules modules/
