@@ -1,10 +1,13 @@
 # 更新履歴
 
+ - master/HEAD
+   * jarファイルを含めない形のパッケージングに変更
+   * 細かい修正色々（詳しくは[コミットログ](https://github.com/piroor/observeclipboard/commits/master)を参照）
  - 1.4.2009110201
    * Minefield, Firefox 3.6に対応
-   * URIの検出処理を[テキストリンク](http://piro.sakura.ne.jp/xul/../textlink/) Ver.3.1.2009110201互換にアップデート
+   * URIの検出処理を[テキストリンク](http://piro.sakura.ne.jp/xul/textlink/) Ver.3.1.2009110201互換にアップデート
  - 1.3.2008052701
-   * スキーマ部分を省略されたURIやドメイン名のみの文字列、スキーマ部分が不正なURIなども認識できるようにした（[テキストリンク](http://piro.sakura.ne.jp/xul/../textlink/)互換）
+   * スキーマ部分を省略されたURIやドメイン名のみの文字列、スキーマ部分が不正なURIなども認識できるようにした（[テキストリンク](http://piro.sakura.ne.jp/xul/textlink/)互換）
    * 複数のURIを一度に開く時、重複する物は開かないようにした
    * 初回起動時のツールバーボタン追加の確認ダイアログがMac OS X上で画面外に吹っ飛んでいたのを修正
  - 1.2.2008042801

@@ -1,10 +1,13 @@
 # History
 
+ - master/HEAD
+   * Modified: "jar" archive is no longer included.
+   * Many tiny fixes. See the [commit log](https://github.com/piroor/observeclipboard/commits/master) for more information.
  - 1.4.2009110201
    * Works on Minefield and Firefox 3.6.
-   * Improved: URI detection is updated based on codes of [Text Link](http://piro.sakura.ne.jp/xul/../textlink/index.html.en) Ver.3.1.2009110201.
+   * Improved: URI detection is updated based on codes of [Text Link](http://piro.sakura.ne.jp/xul/textlink/index.html.en) Ver.3.1.2009110201.
  - 1.3.2008052701
-   * Improved: URI strings without schemer part, domain names, URIs with broken schemer can be recognized. ([Text Link](http://piro.sakura.ne.jp/xul/../textlink/index.html.en) compatible)
+   * Improved: URI strings without schemer part, domain names, URIs with broken schemer can be recognized. ([Text Link](http://piro.sakura.ne.jp/xul/textlink/index.html.en) compatible)
    * Improved: When multiple URIs are loaded, duplicated URIs are ignored.
    * Fixed: Initial dialog to confirm adding the toolbar button is shown correctly in Mac OS X.
  - 1.2.2008042801
