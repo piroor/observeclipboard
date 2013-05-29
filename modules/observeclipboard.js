@@ -38,6 +38,11 @@ var Cc = Components.classes;
 var Ci = Components.interfaces;
  
 var ClipboardObserverService = { 
+	kNO_OPEN         : -1,
+	kOPEN_IN_CURRENT : 0,
+	kOPEN_IN_TAB     : 1,
+	kOPEN_IN_WINDOW  : 2,
+	kOPEN_ONLY_FIRST_IN_CURRENT : 0,
 
 	lastURI : '',
 	lastContent : null,
@@ -896,7 +901,8 @@ var ClipboardObserverService = {
 		uris.forEach(function(aURI, aIndex) {
 			var tab;
 			if (
-				openInFlag == 0 ||
+				openInFlag == this.kOPEN_IN_CURRENT ||
+				openInFlag == this.kOPEN_ONLY_FIRST_IN_CURRENT ||
 				(!aIndex && this.isBlankTab(b.selectedTab))
 				) {
 				b.loadURI(aURI);
@@ -905,12 +911,12 @@ var ClipboardObserverService = {
 			else {
 				switch (openInFlag)
 				{
-					case 1: // new tab
+					case this.kOPEN_IN_TAB:
 					default:
 						tab = b.addTab(aURI);
 						break;
 
-					case 2: // new window
+					case this.kOPEN_IN_WINDOW:
 						w.open(aURI);
 						break;
 				}
@@ -918,14 +924,16 @@ var ClipboardObserverService = {
 			}
 		}, this);
 
+		// post process
 		switch (openInFlag)
 		{
-			case 0:
+			case this.kOPEN_IN_CURRENT:
+			case this.kOPEN_ONLY_FIRST_IN_CURRENT:
 				if (!this.getPref('observeclipboard.loadInBackgroundWindow'))
 					w.focus();
 				break;
 
-			case 1: // new tab
+			case this.kOPEN_IN_TAB:
 				if (firstTab &&
 					!this.getPref('observeclipboard.loadInBackground')) {
 					b.selectedTab = firstTab;
@@ -936,7 +944,7 @@ var ClipboardObserverService = {
 					w.focus();
 				break;
 
-			case 2: // new window
+			case this.kOPEN_IN_WINDOW:
 				break;
 
 
