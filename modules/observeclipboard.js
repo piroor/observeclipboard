@@ -884,7 +884,9 @@ var ClipboardObserverService = {
 
 		if (
 			uris.length > 1 &&
-			('PlacesController' in w) ?
+			('PlacesUIUtils' in w && w.PlacesUIUtils._confirmOpenInTabs) ?
+				!w.PlacesUIUtils._confirmOpenInTabs(uris.length) :
+			('PlacesController' in w && w.PlacesController.prototype._confirmOpenTabs) ?
 				!w.PlacesController.prototype._confirmOpenTabs(uris.length) :
 				false
 			)
