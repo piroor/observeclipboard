@@ -898,70 +898,70 @@ var ClipboardObserverService = {
 			return;
 
 		var firstTab;
-		if (uris.length > 1 &&
+		if (
+			uris.length > 1 &&
 			openInFlag == this.kOPEN_IN_TAB &&
-			b.treeStyleTab) {
+			b.treeStyleTab
+			) {
 			firstTab = b.addTab('about:treestyletab-group?New%20Group');
 			b.treeStyleTab.readyToOpenChildTabNow(firstTab, true);
 		}
 
 		try {
-
-		uris.forEach(function(aURI, aIndex) {
-			var tab;
-			if (
-				openInFlag == this.kOPEN_IN_CURRENT ||
-				openInFlag == this.kOPEN_ONLY_FIRST_IN_CURRENT ||
-				(!aIndex && this.isBlankTab(b.selectedTab))
-				) {
-				b.loadURI(aURI);
-				if (!firstTab) firstTab = b.selectedTab;
-			}
-			else {
-				switch (openInFlag)
-				{
-					case this.kOPEN_IN_TAB:
-					default:
-						tab = b.addTab(aURI);
-						break;
-
-					case this.kOPEN_IN_WINDOW:
-						w.open(aURI);
-						break;
+			uris.forEach(function(aURI, aIndex) {
+				var tab;
+				if (
+					openInFlag == this.kOPEN_IN_CURRENT ||
+					openInFlag == this.kOPEN_ONLY_FIRST_IN_CURRENT ||
+					(!aIndex && this.isBlankTab(b.selectedTab))
+					) {
+					b.loadURI(aURI);
+					if (!firstTab) firstTab = b.selectedTab;
 				}
-				if (openInFlag == 1 && !firstTab) firstTab = tab;
-			}
-		}, this);
+				else {
+					switch (openInFlag)
+					{
+						case this.kOPEN_IN_TAB:
+						default:
+							tab = b.addTab(aURI);
+							break;
 
-
-		// post process
-		switch (openInFlag)
-		{
-			case this.kOPEN_IN_CURRENT:
-			case this.kOPEN_ONLY_FIRST_IN_CURRENT:
-				if (!this.getPref('observeclipboard.loadInBackgroundWindow'))
-					w.focus();
-				break;
-
-			case this.kOPEN_IN_TAB:
-				if (firstTab &&
-					!this.getPref('observeclipboard.loadInBackground')) {
-					b.selectedTab = firstTab;
-					if ('scrollTabbarTo' in b) b.scrollTabbarTo(firstTab);
-					if ('setFocusInternal' in b) b.setFocusInternal();
+						case this.kOPEN_IN_WINDOW:
+							w.open(aURI);
+							break;
+					}
+					if (openInFlag == 1 && !firstTab) firstTab = tab;
 				}
-				if (!this.getPref('observeclipboard.loadInBackgroundWindow'))
-					w.focus();
-				break;
-
-			case this.kOPEN_IN_WINDOW:
-				break;
+			}, this);
 
 
-			default:
-				break;
-		}
+			// post process
+			switch (openInFlag)
+			{
+				case this.kOPEN_IN_CURRENT:
+				case this.kOPEN_ONLY_FIRST_IN_CURRENT:
+					if (!this.getPref('observeclipboard.loadInBackgroundWindow'))
+						w.focus();
+					break;
 
+				case this.kOPEN_IN_TAB:
+					if (firstTab &&
+						!this.getPref('observeclipboard.loadInBackground')) {
+						b.selectedTab = firstTab;
+						if ('scrollTabbarTo' in b) b.scrollTabbarTo(firstTab);
+						if ('setFocusInternal' in b) b.setFocusInternal();
+					}
+					if (!this.getPref('observeclipboard.loadInBackgroundWindow'))
+						w.focus();
+					break;
+
+				case this.kOPEN_IN_WINDOW:
+					break;
+
+
+				default:
+					break;
+			}
 		}
 		finally {
 			if (
