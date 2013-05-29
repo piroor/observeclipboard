@@ -53,6 +53,15 @@ var ClipboardObserverService = {
 	typeMultiple : 0,
 
 	timer : null,
+
+	get stringBundle() {
+		if (!this._stringBundle)
+			this._stringBundle = Cc['@mozilla.org/intl/stringbundle;1']
+						.getService(Ci.nsIStringBundleService)
+						.createBundle('chrome://observeclipboard/locale/observeclipboard.properties');
+		return this._stringBundle;
+	},
+	_stringBundle : null,
 	
 	evalInSandbox : function(aCode, aOwner) 
 	{
@@ -905,7 +914,7 @@ var ClipboardObserverService = {
 			openInFlag == this.kOPEN_IN_TAB &&
 			b.treeStyleTab
 			) {
-			firstTab = b.addTab('about:treestyletab-group?New%20Group');
+			firstTab = b.addTab('about:treestyletab-group?' + encodeURIComponent(this.stringBundle.GetStringFromName('new_group_name')));
 			b.treeStyleTab.readyToOpenChildTabNow(firstTab, true);
 		}
 
