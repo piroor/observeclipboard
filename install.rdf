@@ -5,7 +5,7 @@
   <RDF:Description RDF:about="urn:mozilla:install-manifest"
                    em:id="{84BE9FF4-6D4F-4477-8E8A-86CF17F053BA}"
                    em:name="Clipboard Observer"
-                   em:version="2.0.2009110201"
+                   em:version="2.0.2013052901"
                    em:creator="YUKI &quot;Piro&quot; Hiroshi"
                    em:description="Opens new tab or window automatically when you copy URLs into the clipboard."
                    em:homepageURL="http://piro.sakura.ne.jp/xul/_observeclipboard.html.en"

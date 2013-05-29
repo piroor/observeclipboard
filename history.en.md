@@ -1,6 +1,8 @@
 # History
 
  - master/HEAD
+ - 2.0.2013052901
+   * Works on Nightly 24.0a1
    * Improved: Open new multiple tabs in a tree if [Tree Style Tab](http://piro.sakura.ne.jp/xul/_treestyletab.html.en) is installed.
    * Modified: "jar" archive is no longer included.
    * Many tiny fixes. See the [commit log](https://github.com/piroor/observeclipboard/commits/master) for more information.
