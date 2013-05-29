@@ -898,6 +898,15 @@ var ClipboardObserverService = {
 			return;
 
 		var firstTab;
+		if (uris.length > 1 &&
+			openInFlag == this.kOPEN_IN_TAB &&
+			b.treeStyleTab) {
+			firstTab = b.addTab('about:treestyletab-group?New%20Group');
+			b.treeStyleTab.readyToOpenChildTabNow(firstTab, true);
+		}
+
+		try {
+
 		uris.forEach(function(aURI, aIndex) {
 			var tab;
 			if (
@@ -923,6 +932,7 @@ var ClipboardObserverService = {
 				if (openInFlag == 1 && !firstTab) firstTab = tab;
 			}
 		}, this);
+
 
 		// post process
 		switch (openInFlag)
@@ -950,6 +960,16 @@ var ClipboardObserverService = {
 
 			default:
 				break;
+		}
+
+		}
+		finally {
+			if (
+				firstTab &&
+				b.treeStyleTab &&
+				b.treeStyleTab.checkToOpenChildTab(firstTab)
+				)
+				b.treeStyleTab.stopToOpenChildTab();
 		}
 	},
 	isBlankTab : function(aTab)
