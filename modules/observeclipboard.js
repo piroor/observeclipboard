@@ -897,11 +897,7 @@ var ClipboardObserverService = {
 			var tab;
 			if (
 				openInFlag == 0 ||
-				(
-					!aIndex &&
-					b.currentURI &&
-					(w.isBlankPageURL ? w.isBlankPageURL(b.currentURI.spec) : (b.currentURI.spec == 'about:blank'))
-				)
+				(!aIndex && this.isBlankTab(b.selectedTab))
 				) {
 				b.loadURI(aURI);
 				if (!firstTab) firstTab = b.selectedTab;
@@ -947,6 +943,18 @@ var ClipboardObserverService = {
 			default:
 				break;
 		}
+	},
+	isBlankTab : function(aTab)
+	{
+		var b = aTab.linkedBrowser;
+		var w = b.ownerDocument.defaultView;
+		return (
+			b.currentURI &&
+			(w.isBlankPageURL ?
+				w.isBlankPageURL(b.currentURI.spec) :
+				(b.currentURI.spec == 'about:blank')
+			)
+		);
 	},
  
 	pasteAndGo : function(aTab) 
