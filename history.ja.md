@@ -1,6 +1,7 @@
 # 更新履歴
 
  - master/HEAD
+   * [ツリー型タブ](http://piro.sakura.ne.jp/xul/treestyletab/)との併用時に、複数のタブを一気に開く場合はツリーにするようにした
    * jarファイルを含めない形のパッケージングに変更
    * 細かい修正色々（詳しくは[コミットログ](https://github.com/piroor/observeclipboard/commits/master)を参照）
  - 1.4.2009110201

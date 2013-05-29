@@ -1,6 +1,7 @@
 # History
 
  - master/HEAD
+   * Improved: Open new multiple tabs in a tree if [Tree Style Tab](http://piro.sakura.ne.jp/xul/_treestyletab.html.en) is installed.
    * Modified: "jar" archive is no longer included.
    * Many tiny fixes. See the [commit log](https://github.com/piroor/observeclipboard/commits/master) for more information.
  - 1.4.2009110201
