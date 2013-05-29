@@ -39,6 +39,8 @@ var Ci = Components.interfaces;
  
 var ClipboardObserverService = { 
 	kNO_OPEN         : -1,
+	kOPEN            : 0,
+
 	kOPEN_IN_CURRENT : 0,
 	kOPEN_IN_TAB     : 1,
 	kOPEN_IN_WINDOW  : 2,
@@ -866,12 +868,12 @@ var ClipboardObserverService = {
 			return;
 
 		if (uris.length > 1 &&
-			this.typeMultiple == 0)
+			this.typeMultiple == this.kOPEN_ONLY_FIRST_IN_CURRENT)
 			uris = [uris[0]];
 
 
 		var openInFlag = uris.length == 1 ? this.type : this.typeMultiple ;
-		if (openInFlag < 0)
+		if (openInFlag < this.kOPEN)
 			return;
 
 
@@ -930,7 +932,8 @@ var ClipboardObserverService = {
 							w.open(aURI);
 							break;
 					}
-					if (openInFlag == 1 && !firstTab) firstTab = tab;
+					if (openInFlag ==this.kOPEN_IN_TAB && !firstTab)
+						firstTab = tab;
 				}
 			}, this);
 
