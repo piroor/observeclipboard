@@ -184,6 +184,7 @@ var ClipboardObserverService = {
 	getClipboardContent : function() 
 	{
 		var str = '';
+		try {
 
 		if (!this.Clipboard.hasDataMatchingFlavors(['text/unicode'], 1, this.Clipboard.kGlobalClipboard))
 			return str;
@@ -204,6 +205,10 @@ var ClipboardObserverService = {
 		data = data.value.QueryInterface(Ci.nsISupportsString);
 		str = data.data.substring(0, dataLength.value / 2);
 
+		}
+		catch(e) {
+			dump(e + '\n');
+		}
 		return str;
 	},
    
