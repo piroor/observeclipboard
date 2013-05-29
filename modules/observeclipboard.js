@@ -14,7 +14,7 @@
  * The Original Code is the Clipboard Observer.
  *
  * The Initial Developer of the Original Code is YUKI "Piro" Hiroshi.
- * Portions created by the Initial Developer are Copyright (C) 2004-2009
+ * Portions created by the Initial Developer are Copyright (C) 2004-2013
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s): YUKI "Piro" Hiroshi <piro.outsider.reflex@gmail.com>
@@ -742,10 +742,8 @@ var ClipboardObserverService = {
 					((this._fixupTargetsPattern+'|')
 						.replace(
 							/([^|]+)\|/g,
-							<![CDATA[
-								if (/^$1$/.test(target))
-									table = table.replace(/\b$1\s*=>/, target+"=>");
-							]]>
+							'if (/^$1$/.test(target))\n' +
+							'  table = table.replace(/\b$1\s*=>/, target+"=>");'
 						))+
 					'return table;'+
 				'})()');
