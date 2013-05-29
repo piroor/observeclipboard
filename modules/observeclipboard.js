@@ -185,26 +185,24 @@ var ClipboardObserverService = {
 	{
 		var str = '';
 		try {
+			if (!this.Clipboard.hasDataMatchingFlavors(['text/unicode'], 1, this.Clipboard.kGlobalClipboard))
+				return str;
 
-		if (!this.Clipboard.hasDataMatchingFlavors(['text/unicode'], 1, this.Clipboard.kGlobalClipboard))
-			return str;
+			// get string from clipboard
+			var trans = Cc['@mozilla.org/widget/transferable;1'].createInstance(Ci.nsITransferable);
+			trans.addDataFlavor('text/unicode');
+			// this.Clipboard.getData(trans, this.Clipboard.kSelectionClipboard);
+			this.Clipboard.getData(trans, this.Clipboard.kGlobalClipboard);
 
-		// get string from clipboard
-		var trans = Cc['@mozilla.org/widget/transferable;1'].createInstance(Ci.nsITransferable);
-		trans.addDataFlavor('text/unicode');
-		// this.Clipboard.getData(trans, this.Clipboard.kSelectionClipboard);
-		this.Clipboard.getData(trans, this.Clipboard.kGlobalClipboard);
+			var data       = {},
+				dataLength = {};
+			trans.getTransferData('text/unicode', data, dataLength);
 
-		var data       = {},
-			dataLength = {};
-		trans.getTransferData('text/unicode', data, dataLength);
+			if (!data || !data.value)
+				return str;
 
-		if (!data || !data.value)
-			return str;
-
-		data = data.value.QueryInterface(Ci.nsISupportsString);
-		str = data.data.substring(0, dataLength.value / 2);
-
+			data = data.value.QueryInterface(Ci.nsISupportsString);
+			str = data.data.substring(0, dataLength.value / 2);
 		}
 		catch(e) {
 			dump(e + '\n');
