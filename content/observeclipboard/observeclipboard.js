@@ -67,10 +67,6 @@ var ClipboardObserverService = {
 		// show custom buttons only in the initial startup
 		var bar = document.getElementById('nav-bar');
 		if (bar && bar.currentSet) {
-			var STRBUNDLE = Components.classes['@mozilla.org/intl/stringbundle;1']
-							.getService(Components.interfaces.nsIStringBundleService);
-			var msg = STRBUNDLE.createBundle('chrome://observeclipboard/locale/observeclipboard.properties');
-
 			var PromptService = Components.classes['@mozilla.org/embedcomp/prompt-service;1']
 								.getService(Components.interfaces.nsIPromptService);
 
@@ -92,8 +88,8 @@ var ClipboardObserverService = {
 			if (currentset != newset &&
 				PromptService.confirmEx(
 					null,
-					msg.GetStringFromName('initialshow_confirm_title'),
-					msg.GetStringFromName('initialshow_confirm_text'),
+					this.stringBundle.GetStringFromName('initialshow_confirm_title'),
+					this.stringBundle.GetStringFromName('initialshow_confirm_text'),
 					(PromptService.BUTTON_TITLE_YES * PromptService.BUTTON_POS_0) +
 					(PromptService.BUTTON_TITLE_NO  * PromptService.BUTTON_POS_1),
 					null, null, null, null, {}
