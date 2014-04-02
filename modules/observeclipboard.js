@@ -14,7 +14,7 @@
  * The Original Code is the Clipboard Observer.
  *
  * The Initial Developer of the Original Code is YUKI "Piro" Hiroshi.
- * Portions created by the Initial Developer are Copyright (C) 2004-2013
+ * Portions created by the Initial Developer are Copyright (C) 2004-2014
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s): YUKI "Piro" Hiroshi <piro.outsider.reflex@gmail.com>
@@ -36,6 +36,8 @@
 var EXPORTED_SYMBOLS = ['ClipboardObserverService'];
 var Cc = Components.classes;
 var Ci = Components.interfaces;
+
+Components.utils.import('resource://observeclipboard-modules/prefs.js');
  
 var ClipboardObserverService = { 
 	kNO_OPEN         : -1,
@@ -824,17 +826,17 @@ var ClipboardObserverService = {
  
 	init : function() 
 	{
-		this.lastURI = this.getPref('observeclipboard.lastURI') || '';
+		this.lastURI = prefs.getPref('observeclipboard.lastURI') || '';
 		this.lastContent = '';
 		this.shouldIgnoreFirst = (this.getClipboardContent() ? true : false );
 
-		this.addPrefListener(this);
-		this.onPrefChange('observeclipboard.schemer');
-		this.onPrefChange('observeclipboard.schemer.fixup.table');
-		this.onPrefChange('observeclipboard.schemer.fixup.default');
-		this.onPrefChange('observeclipboard.multibyte.enabled');
-		this.onPrefChange('observeclipboard.multiple.type');
-		this.onPrefChange('observeclipboard.type');
+		prefs.addPrefListener(this);
+		prefs.onPrefChange('observeclipboard.schemer');
+		prefs.onPrefChange('observeclipboard.schemer.fixup.table');
+		prefs.onPrefChange('observeclipboard.schemer.fixup.default');
+		prefs.onPrefChange('observeclipboard.multibyte.enabled');
+		prefs.onPrefChange('observeclipboard.multiple.type');
+		prefs.onPrefChange('observeclipboard.type');
 	},
  
 	start : function() 
@@ -844,7 +846,7 @@ var ClipboardObserverService = {
 			.createInstance(Ci.nsITimer);
 		this.timer.init(
 			this,
-			Math.min(1, this.getPref('observeclipboard.interval')),
+			Math.min(1, prefs.getPref('observeclipboard.interval')),
 			Ci.nsITimer.TYPE_REPEATING_SLACK
 		);
 	},
@@ -899,7 +901,7 @@ var ClipboardObserverService = {
 
 
 		this.lastURI = uris.join('|');
-		this.setPref('observeclipboard.lastURI', String(this.lastURI));
+		prefs.setPref('observeclipboard.lastURI', String(this.lastURI));
 
 		if (
 			uris.length > 1 &&
@@ -955,18 +957,18 @@ var ClipboardObserverService = {
 			{
 				case this.kOPEN_IN_CURRENT:
 				case this.kOPEN_ONLY_FIRST_IN_CURRENT:
-					if (!this.getPref('observeclipboard.loadInBackgroundWindow'))
+					if (!prefs.getPref('observeclipboard.loadInBackgroundWindow'))
 						w.focus();
 					break;
 
 				case this.kOPEN_IN_TAB:
 					if (firstTab &&
-						!this.getPref('observeclipboard.loadInBackground')) {
+						!prefs.getPref('observeclipboard.loadInBackground')) {
 						b.selectedTab = firstTab;
 						if ('scrollTabbarTo' in b) b.scrollTabbarTo(firstTab);
 						if ('setFocusInternal' in b) b.setFocusInternal();
 					}
-					if (!this.getPref('observeclipboard.loadInBackgroundWindow'))
+					if (!prefs.getPref('observeclipboard.loadInBackgroundWindow'))
 						w.focus();
 					break;
 
@@ -1041,7 +1043,7 @@ var ClipboardObserverService = {
  
 	onPrefChange : function(aPrefName) 
 	{
-		var value = this.getPref(aPrefName);
+		var value = prefs.getPref(aPrefName);
 		switch (aPrefName)
 		{
 			case 'observeclipboard.schemer':
@@ -1067,7 +1069,7 @@ var ClipboardObserverService = {
 			case 'observeclipboard.type':
 				this.type = value;
 			case 'observeclipboard.interval':
-				if (this.getPref('observeclipboard.type') > -1) {
+				if (prefs.getPref('observeclipboard.type') > -1) {
 					this.shouldIgnoreFirst = true;
 					this.start();
 				}
@@ -1080,8 +1082,5 @@ var ClipboardObserverService = {
   
 }; 
   
-Components.utils.import('resource://observeclipboard-modules/prefs.js');
-ClipboardObserverService.__proto__ = prefs; 
- 
 ClipboardObserverService.init(); 
  
