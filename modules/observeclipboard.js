@@ -831,12 +831,12 @@ var ClipboardObserverService = {
 		this.shouldIgnoreFirst = (this.getClipboardContent() ? true : false );
 
 		prefs.addPrefListener(this);
-		prefs.onPrefChange('observeclipboard.schemer');
-		prefs.onPrefChange('observeclipboard.schemer.fixup.table');
-		prefs.onPrefChange('observeclipboard.schemer.fixup.default');
-		prefs.onPrefChange('observeclipboard.multibyte.enabled');
-		prefs.onPrefChange('observeclipboard.multiple.type');
-		prefs.onPrefChange('observeclipboard.type');
+		this.onPrefChange('observeclipboard.schemer');
+		this.onPrefChange('observeclipboard.schemer.fixup.table');
+		this.onPrefChange('observeclipboard.schemer.fixup.default');
+		this.onPrefChange('observeclipboard.multibyte.enabled');
+		this.onPrefChange('observeclipboard.multiple.type');
+		this.onPrefChange('observeclipboard.type');
 	},
  
 	start : function() 
