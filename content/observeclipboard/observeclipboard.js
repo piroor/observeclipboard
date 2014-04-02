@@ -14,7 +14,7 @@
  * The Original Code is the Clipboard Observer.
  *
  * The Initial Developer of the Original Code is YUKI "Piro" Hiroshi.
- * Portions created by the Initial Developer are Copyright (C) 2004-2009
+ * Portions created by the Initial Developer are Copyright (C) 2004-2014
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s): YUKI "Piro" Hiroshi <piro.outsider.reflex@gmail.com>
@@ -33,17 +33,19 @@
  *
  * ***** END LICENSE BLOCK ***** */
  
-var ClipboardObserverService = { 
+(function() {
+
+var module = {};
+Components.utils.import('resource://observeclipboard-modules/observeclipboard.js', module);
+Components.utils.import('resource://observeclipboard-modules/inherit.jsm', module);
+
+var ClipboardObserverService = window.ClipboardObserverService = module.inherit(module.ClipboardObserverService, { 
 	XULNS : 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul',
 	PREFROOT : 'extensions.{84BE9FF4-6D4F-4477-8E8A-86CF17F053BA}',
 	
 	init : function() 
 	{
 		window.removeEventListener('load', this, false);
-
-		var module = {};
-		Components.utils.import('resource://observeclipboard-modules/observeclipboard.js', module);
-		this.__proto__ = module.ClipboardObserverService;
 
 		window.setTimeout(
 			function()
@@ -194,7 +196,8 @@ var ClipboardObserverService = {
 		}
 	}
   
-}; 
+}); 
   
 window.addEventListener('load', ClipboardObserverService, false); 
  
+})();
