@@ -56,7 +56,7 @@ var ClipboardObserverService = window.ClipboardObserverService = module.inherit(
 			10
 		);
 
-		this.addPrefListener(this);
+		this.prefs.addPrefListener(this);
 		this.onPrefChange('observeclipboard.type');
 
 		window.addEventListener('unload', this, false);
@@ -79,10 +79,10 @@ var ClipboardObserverService = window.ClipboardObserverService = module.inherit(
 				];
 			for (var i in initial)
 			{
-				if (!this.getPref(this.PREFROOT+'.initialshow.'+initial[i])) {
+				if (!this.prefs.getPref(this.PREFROOT+'.initialshow.'+initial[i])) {
 					if (currentset.indexOf(initial[i]) < 0)
 						buttons.push(initial[i]);
-					this.setPref(this.PREFROOT+'.initialshow.'+initial[i], true);
+					this.prefs.setPref(this.PREFROOT+'.initialshow.'+initial[i], true);
 				}
 			}
 			currentset = bar.currentSet.replace(/__empty/, '');
@@ -108,7 +108,7 @@ var ClipboardObserverService = window.ClipboardObserverService = module.inherit(
 	destroy : function() 
 	{
 		window.removeEventListener('unload', this, false);
-		this.removePrefListener(this);
+		this.prefs.removePrefListener(this);
 	},
  
 	handleEvent : function(aEvent) 
@@ -126,14 +126,14 @@ var ClipboardObserverService = window.ClipboardObserverService = module.inherit(
  
 	toggleObserveClipboard : function() 
 	{
-		if (this.getPref('observeclipboard.type') < 0) {
-			if (this.getPref('observeclipboard.type.ui') < 0)
-				this.setPref('observeclipboard.type.ui', 1);
-			this.setPref('observeclipboard.type', this.getPref('observeclipboard.type.ui'));
+		if (this.prefs.getPref('observeclipboard.type') < 0) {
+			if (this.prefs.getPref('observeclipboard.type.ui') < 0)
+				this.prefs.setPref('observeclipboard.type.ui', 1);
+			this.prefs.setPref('observeclipboard.type', this.prefs.getPref('observeclipboard.type.ui'));
 		}
 		else {
-			this.setPref('observeclipboard.type.ui', this.getPref('observeclipboard.type'));
-			this.setPref('observeclipboard.type', -1);
+			this.prefs.setPref('observeclipboard.type.ui', this.prefs.getPref('observeclipboard.type'));
+			this.prefs.setPref('observeclipboard.type', -1);
 		}
 	},
  
@@ -145,7 +145,7 @@ var ClipboardObserverService = window.ClipboardObserverService = module.inherit(
 
 		var tabs = ClipboardObserverService.getTabs(gBrowser);
 		if (
-			ClipboardObserverService.getPref('observeclipboard.loadOnNewTab') &&
+			ClipboardObserverService.prefs.getPref('observeclipboard.loadOnNewTab') &&
 			tabs.snapshotLength > count
 			)
 			window.setTimeout(function(aTab) {
@@ -176,14 +176,14 @@ var ClipboardObserverService = window.ClipboardObserverService = module.inherit(
  
 	onPrefChange : function(aPrefName) 
 	{
-		var value = this.getPref(aPrefName);
+		var value = this.prefs.getPref(aPrefName);
 		switch (aPrefName)
 		{
 			case 'observeclipboard.type':
 			case 'observeclipboard.interval':
 				var broadcaster = document.getElementById('toggleObserveClipboard-broadcaster');
 				if (broadcaster) {
-					if (this.getPref('observeclipboard.type') > -1) {
+					if (this.prefs.getPref('observeclipboard.type') > -1) {
 						broadcaster.setAttribute('checked', true);
 						broadcaster.setAttribute('tooltiptext', broadcaster.getAttribute('tooltiptext-checked'));
 					}

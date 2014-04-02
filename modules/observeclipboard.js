@@ -40,6 +40,8 @@ var Ci = Components.interfaces;
 Components.utils.import('resource://observeclipboard-modules/prefs.js');
  
 var ClipboardObserverService = { 
+	prefs : prefs,
+
 	kNO_OPEN         : -1,
 	kOPEN            : 0,
 
