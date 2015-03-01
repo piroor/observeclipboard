@@ -760,8 +760,8 @@ var ClipboardObserverService = {
 		if (match) {
 			var target = match[1];
 			var table = this.evalInSandbox('(function() {'+
-					'var table = '+this._fixupTable.quote()+';'+
-					'var target = '+target.quote()+';'+
+					'var table = '+JSON.stringify(this._fixupTable)+';'+
+					'var target = '+JSON.stringify(target)+';'+
 					((this._fixupTargetsPattern+'|')
 						.replace(
 							/([^|]+)\|/g,
