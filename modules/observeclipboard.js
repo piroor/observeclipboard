@@ -14,7 +14,7 @@
  * The Original Code is the Clipboard Observer.
  *
  * The Initial Developer of the Original Code is YUKI "Piro" Hiroshi.
- * Portions created by the Initial Developer are Copyright (C) 2004-2014
+ * Portions created by the Initial Developer are Copyright (C) 2004-2016
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s): YUKI "Piro" Hiroshi <piro.outsider.reflex@gmail.com>
@@ -896,7 +896,7 @@ var ClipboardObserverService = {
 		var b = w.gBrowser;
 
 		if (uris.length == 1 &&
-			Array.slice(b.browsers).some(function(aBrowser) {
+			[...b.browsers].some(function(aBrowser) {
 				return aBrowser.currentURI && aBrowser.currentURI.spec == uris[0];
 			}))
 			return;
@@ -1012,7 +1012,7 @@ var ClipboardObserverService = {
 
 			var exists = false;
 
-			if (Array.slice(aTab.ownerDocument.defaultView.gBrowser.browsers)
+			if ([...aTab.ownerDocument.defaultView.gBrowser.browsers]
 					.some(function(aBrowser) {
 						return (aBrowser.currentURI ? aBrowser.currentURI.spec : 'about:blank' ) == clipboardURI;
 					}))
